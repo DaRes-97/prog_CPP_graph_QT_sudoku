@@ -8,8 +8,9 @@ void test_constructors()
 	graph g2(7); //test costrut. 1 elem.
 	assert(g2.len() == 8);
 	graph g3(g2); //test costrut. copia
-	assert(g3.len() == 8);
-
+	assert(g3.equals(g2));
+	g3.add(5);
+	assert(!g3.equals(g2));
 }
 
 void test_add_node()
@@ -157,18 +158,38 @@ void test_count_nodes_arches()
 	g1.add(4,4);
 	assert(g1.num_nodes() == 2);
 	assert(g1.num_arches() == 3);
+}
 
-	g1.print();
+void test_equals(){
+	graph g1(5);
+	g1.add(7);
+	g1.add(2);
+	g1.add(4);
+	g1.add(5,7);
+	g1.add(2,4);
+
+	graph g2(4);
+	g2.add(2);
+	g2.add(7);
+	g2.add(5);
+	g2.add(2,4);
+	g2.add(5,7);
+
+	assert(g1.equals(g2));
+	g2.add(3);
+	assert(!g1.equals(g2));
 }
 
 void test_operators()
 {
 	//operator=
 	graph g1;
-	graph g2(5);
 	graph g3(7);
 	g1 = g3;
-	//DA IMPLEMENTARE VERIFICA UGUAGLIANZA/DISEGUAGLIANZA TRA DUE GRAFI
+	
+	assert(g1.equals(g3));
+	g1.add(3);
+	assert(!g1.equals(g3));
 }
 
 int main()
@@ -180,6 +201,8 @@ int main()
 	test_add_arch();
 	test_remove_arch();
 	test_count_nodes_arches();
+	test_equals();
+	test_operators();
 
 	return 0;
 }

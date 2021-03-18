@@ -197,6 +197,32 @@ public:
 	}
 
 	/**
+		@brief uguaglianza tra due graph
+
+		la funzione controlla che i due graph
+		siano della stessa dimensione ed abbiano
+		gli stessi nodi e gli stessi archi attivi
+
+		@param other graph da confrontare con this
+	*/
+	const bool equals(const graph &other) const {
+		if(_len != other._len)
+			return false;
+
+		for(idtype c = 0; c < _len; c++){
+			if(_node[c] != other._node[c])
+				return false;
+
+			for(idtype d = 0; d < _len; d++){
+				if(_arch[c][d] != other._arch[c][d])
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 		@brief aggiunta di un nodo
 
 		la funzione si occupa di aggiungere un nodo
