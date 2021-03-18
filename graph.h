@@ -16,7 +16,7 @@
 /**
 	@class graph
 
-	@brief classe che implementa il grafico
+	@brief classe che implementa il grafo
 */
 class graph{
 private:
@@ -220,6 +220,28 @@ public:
 		}
 
 		return true;
+	}
+
+	/**
+		@brief primo elemento libero
+
+		la funzione ritorna il primo index libero
+		all'interno dell'array dei nodi. Questa 
+		funzione è di supporto al metodo add della
+		classe graph templata, per automatizzare la
+		scelta dell'index nel quale aggiungere l'elemento
+
+		@return idx primo indice disponibile
+	*/
+	idtype first_free(){
+		idtype idx = 0;
+
+		for(idx; idx < _len; idx++){
+			if(!_node[idx])
+				return idx;
+		}
+
+		return idx;
 	}
 
 	/**
