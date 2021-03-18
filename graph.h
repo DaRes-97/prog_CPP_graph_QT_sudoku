@@ -4,6 +4,7 @@
 #include <stdio.h> //iostream
 #include <cassert> //assert
 #include <iostream> // std::io
+#include <algorithm> // std::swap
 #include "graphexception.h" //gestore eccezioni
 
 /**
@@ -70,6 +71,13 @@ private:
 		delete[] arch;
 	}
 
+	void swap(graph &other)
+	{
+		std::swap(this->_node,other._node);
+		std::swap(this->_arch,other._arch);
+		std::swap(this->_len,other._len);
+	}
+
 public:
 
 	/**
@@ -111,6 +119,29 @@ public:
 	}
 
 	/**
+		@brief costruttore di copia
+
+		costruttore di copia tra due graph
+
+		@param other graph da copiare
+	*/
+	graph(const graph &other) : _len(0), _node(nullptr), _arch(nullptr)
+	{
+		init_vars(other._len);
+
+		for(idtype c = 0; c < _len; c++){
+			_node[c] = other._node[c];
+			for(idtype d = 0; d < _len; d++){
+				_arch[c][d] = other._arch[c][d];
+			}
+		}
+
+		#ifndef NDEBUG
+		std::cout << "inizializzato grafo tramite copia" << std::endl;
+		#endif
+	}
+
+	/**
 		@brief distruttore classe grafo
 	*/
 	~graph()
@@ -125,11 +156,44 @@ public:
 		#endif
 	}
 
-	const bool exists(const idtype id) const {
-		if(id >= _len)
+	/**
+		@brief esistenza di un nodo nel grafo
+
+		la funzione verifica l'esistenza di un
+		determinato nodo all'interno del grafo
+
+		@param id nodo da verificare
+		@return res risultato della verifica
+	*/
+	const bool exists(const idtype id) const
+	{
+		if(id >= _len){
 			return false;
-		else
-			return _node[id];
+		}
+		else{
+			bool res = _node[id];
+			return res;
+		}
+	}
+
+	/**
+		@brief esistenza di un arco nel grafo
+
+		la funzione verifica l'esistenza di un
+		determinato arco all'interno del grafo
+
+		@param id1 nodo di partenza
+		@param id2 nodo di arrivo
+		@return res risultato della verifica
+	*/
+	const bool has_edge(idtype id1, idtype id2) const
+	{
+		if(id1 < _len && id2 < _len){
+			bool res = _arch[id1][id2];
+			return res;
+		} else{
+			return false;
+		}
 	}
 
 	/**
@@ -154,8 +218,8 @@ public:
 
 		} else if (id < _len) { //id già inizializzato
 
-			if(_node[id] == true) //nodo già inserito
-				throw logicexception("nodo gia inserito!", 999);
+			if(_node[id]) //nodo già inserito
+				throw logicexception("nodo gia inserito!", 4);
 
 			_node[id] = true;
 
@@ -186,6 +250,25 @@ public:
 	}
 
 	/**
+		@brief aggiunta di un arco
+
+		la funzione crea un arco orientato tra i due
+		nodi selezionati in ingresso
+
+		@param id1 identificativo nodo 1
+		@param id2 identificativo nodo 2
+	*/
+	void add(idtype id1, idtype id2)
+	{
+		if(!exists(id1) || !exists(id2))
+			throw logicexception("uno dei nodi specificati non esiste!", 2);
+		if(_arch[id1][id2])
+			throw logicexception("arco gia inserito!", 4);
+
+		_arch[id1][id2] = true;
+	}
+
+	/**
 		@brief rimozione di un nodo
 
 		la funzione si occupa della rimozione di un
@@ -197,11 +280,11 @@ public:
 	void remove(idtype id)
 	{
 		if(_node == nullptr) //grafo vuoto
-			throw logicexception("grafo vuoto!", 999);
+			throw logicexception("grafo vuoto!", 1);
 		if(id >= _len) // id non valido
-			throw logicexception("id non valido!", 999);
+			throw logicexception("id non valido!", 2);
 		if(!_node[id]) // nodo non presente
-			throw logicexception("nodo non presente!", 999);
+			throw logicexception("nodo non presente!", 3);
 
 		// elimino il nodo
 		_node[id] = false;
@@ -213,17 +296,31 @@ public:
 		}
 
 		//se non ci sono più nodi elimino il grafo
-		idtype count = 0;
-		for(idtype c = 0; c < _len; c++){
-			if(_node[c])
-				count++;
-		}
-		if(count == 0){
+		if(num_nodes() == 0){
 			destr_vars(_node,_arch,_len);
 			_node = nullptr;
 			_arch = nullptr;
 			_len = 0;
 		}
+	}
+
+	/**
+		@brief rimozione di un arco
+
+		la funzione rimuove l'arco orientato tra i due
+		nodi selezionati in ingresso
+
+		@param id1 identificativo nodo 1
+		@param id2 identificativo nodo 2
+	*/
+	void remove(idtype id1, idtype id2)
+	{
+		if(!exists(id1) || !exists(id2))
+			throw logicexception("uno dei nodi specificati non esiste!", 2);
+		if(!_arch[id1][id2])
+			throw logicexception("arco non presente!", 3);
+
+		_arch[id1][id2] = false;
 	}
 
 	/**
@@ -237,6 +334,46 @@ public:
 	const idtype len() const
 	{
 		return _len;
+	}
+
+	/**
+		@brief conteggio numero di nodi
+
+		la funzione effettua il conteggio del
+		numero di nodi presenti nel grafo
+
+		@return count numero di nodi nel grafo
+	*/
+	const idtype num_nodes() const
+	{
+		idtype count = 0;
+		for(idtype c = 0; c < _len; c++){
+			if(_node[c])
+				count++;
+		}
+
+		return count;
+	}
+
+	/**
+		@brief conteggio numero di archi
+
+		la funzione effettua il conteggio del
+		numero di archi presenti nel grafo
+
+		@return count numero di archi nel grafo
+	*/
+	const idtype num_arches() const
+	{
+		idtype count = 0;
+		for(idtype c = 0; c < _len; c++){
+			for(idtype d = 0; d < _len; d++){
+				if(_arch[c][d])
+					count++;
+			}
+		}
+
+		return count;
 	}
 
 	/**
@@ -267,6 +404,29 @@ public:
 			}
 			std::cout << std::endl;
 		}
+	}
+
+	/**
+		@brief operatore di assegnamento
+
+		operatore di assegnamento che serve per copiare
+		il contenuto di other in *this
+
+		@param other graph da copiare
+		@return reference a graph
+	*/
+	graph& operator=(const graph &other)
+	{
+		if(&other != this){ //controllo auto-assegnamento
+			graph tmp(other);
+			tmp.swap(*this);
+		}
+
+		#ifndef NDEBUG
+		std::cout << "graph swapped" << std::endl;
+		#endif
+
+		return *this;
 	}
 };
 
