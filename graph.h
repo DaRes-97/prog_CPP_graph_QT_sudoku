@@ -19,7 +19,8 @@
 	@brief classe che implementa il grafo
 */
 template<typename T>
-class graph{
+class graph
+{
 private:
 
 	typedef unsigned int idtype;
@@ -39,7 +40,8 @@ private:
 
 		@param len lunghezza array
 	*/
-	inline void init_vars(idtype len){
+	inline void init_vars(idtype len)
+	{
 		_name = new T[len];
 		_node = new bool[len];
 		_arch = new bool*[len];
@@ -67,7 +69,8 @@ private:
 		@param arch matrice di adiacenza
 		@param len lunghezza array e matrice
 	*/
-	inline void destr_vars(T* name, bool* node, bool** arch, idtype len){
+	inline void destr_vars(T* name, bool* node, bool** arch, idtype len)
+	{
 		delete[] node;
 		delete[] name;
 
@@ -96,7 +99,8 @@ private:
 
 		@return idx primo indice disponibile
 	*/
-	idtype first_free(){
+	idtype first_free()
+	{
 		idtype idx = 0;
 
 		while(idx < _len){
@@ -117,7 +121,8 @@ private:
 		@param name nome del nodo
 		@return c indice (ID) del nodo
 	*/
-	const idtype indexof(const T name) const {
+	const idtype indexof(const T name) const
+	{
 		for(int c = 0; c < _len; c++){
 			if(_name[c] == name)
 				return c;
@@ -262,7 +267,8 @@ public:
 
 		@param other graph da confrontare con this
 	*/
-	const bool equals(const graph<T> &other) const {
+	const bool equals(const graph<T> &other) const
+	{
 
 		if(num_nodes() != other.num_nodes() || //stesso num di nodi
 			num_arches() != other.num_arches()) // stesso num di archi
@@ -302,8 +308,13 @@ public:
 	*/
 	void add(T name)
 	{
+		if(exists(name)) //nodo già inserito
+			throw logicexception("nodo gia inserito!", 4);
+
 		idtype id = first_free();
-		std::cout << "ID LIBERO:" << id << std::endl;//DEBUG
+		#ifndef NDEBUG
+		std::cout << "ID LIBERO:" << id << std::endl;
+		#endif
 
 		if(_node == nullptr){ //graph vuoto
 
@@ -312,9 +323,6 @@ public:
 			_name[id] = name;
 
 		} else if (id < _len) { //id già inizializzato
-
-			if(_node[id]) //nodo già inserito
-				throw logicexception("nodo gia inserito!", 4);
 
 			_node[id] = true;
 			_name[id] = name;
