@@ -559,6 +559,155 @@ public:
 
 		return *this;
 	}
+
+	class const_iterator {
+
+		const T *ptr;
+
+	public:
+		typedef std::forward_iterator_tag iterator_category;
+		typedef T                         value_type;
+		typedef ptrdiff_t                 difference_type;
+		typedef const T*                  pointer;
+		typedef const T&                  reference;
+
+	
+		const_iterator() : ptr(nullptr) {}
+		
+		const_iterator(const const_iterator &other) : ptr(other.ptr) {}
+
+		const_iterator& operator=(const const_iterator &other)
+		{
+			ptr = other.ptr;
+			return *this;
+		}
+
+		~const_iterator() {}
+
+		// Ritorna il dato riferito dall'iteratore (dereferenziamento)
+		reference operator*() const
+		{
+			return *ptr;
+		}
+
+		// Ritorna il puntatore al dato riferito dall'iteratore
+		pointer operator->() const
+		{
+			return ptr;
+		}
+		
+		// Operatore di iterazione post-incremento
+		const_iterator operator++(int)
+		{
+			const_iterator tmp(this);
+			increment_ptr();
+			return tmp;
+		}
+
+		// Operatore di iterazione pre-incremento
+		const_iterator& operator++()
+		{
+			increment_ptr();
+			return *this;
+		}
+
+		// Uguaglianza
+		bool operator==(const const_iterator &other) const
+		{
+			return (ptr == other.ptr);
+		}
+		
+		// Diversita'
+		bool operator!=(const const_iterator &other) const
+		{
+			return (ptr != other.ptr);
+		}
+
+	private:
+		//Dati membro
+.
+		friend class graph;
+
+		// Costruttore privato di inizializzazione usato dalla classe container
+		// tipicamente nei metodi begin e end
+		const_iterator(const T* p) : ptr(p) {}
+		
+		// !!! Eventuali altri metodi privati
+		/**
+			@brief puntatore al primo nodo attivo
+
+			il metodo scandaglia l'array _node
+			alla ricerca del primo nodo attivo,
+			se lo trova ritorna il puntatore al
+			suo nome, altrimenti ritorna nullptr
+		*/
+		const T* first() const
+		{
+			idtype idx = _len;
+			for(idtype c = 0; c < _len; c++){
+				if(_node[c]){
+					idx = c;
+					break;
+				}
+			}
+
+			if(idx == _len){
+				return nullptr;
+			} else {
+				return *_name[idx];
+			}
+		}
+
+		/**
+			@brief puntatore all'ultimo nodo attivo
+
+			il metodo scandaglia l'array _node
+			alla ricerca dell'ultimo nodo attivo,
+			se lo trova ritorna il puntatore al
+			suo nome, altrimenti ritorna nullptr
+		*/
+		const T* last() const
+		{
+			idtype idx = _len;
+			for(idtype c = _len-1; c >= 0; c--){
+				if(_node[c]){
+					idx = c;
+					break;
+				}
+			}
+
+			if(idx == _len){
+				return nullptr;
+			} else {
+				return *_name[idx];
+			}
+		}
+
+		/**
+			@brief logica di incremento del puntatore
+
+			il metodo incrementa il puntatore fino a che
+			non punta al nome di un nodo attivo
+		*/
+		void increment_ptr()
+		{
+			for(ptr, ptr != last(); ptr++){
+				if(exists(*ptr))
+					break;
+			}
+		}
+		
+	}; // classe const_iterator
+
+	// Ritorna l'iteratore all'inizio della sequenza dati
+	const_iterator begin() const {
+		return const_iterator(first());
+	}
+	
+	// Ritorna l'iteratore alla fine della sequenza dati
+	const_iterator end() const {
+		return const_iterator(last());
+	}
 };
 
 #endif

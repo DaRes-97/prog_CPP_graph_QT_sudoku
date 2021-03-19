@@ -217,6 +217,25 @@ void test_operators(const U arr[], unsigned int length)
 	assert(g5.equals(g6));
 }
 
+template<typename U>
+void test_iterators(const U arr[], unsigned int length)
+{
+	graph<U> g1;
+
+	for(unsigned int c = 0; c < length; c++){
+		try{
+			g1.add(arr[c]);
+		} catch (logicexception e) {}
+	}
+
+	graph<U>::const_iterator it1, ite1;
+
+	for(it1 = m1.begin(), ite1 = m1.end(); it1 != ite1; ++it1){
+		std::cout << *it1 << " ";
+	}
+	std::cout << std::endl;
+}
+
 int main()
 {
 	unsigned int length = 10;
