@@ -18,12 +18,14 @@
 
 	@brief classe che implementa il grafo
 */
+template<typename T>
 class graph{
 private:
 
 	typedef unsigned int idtype;
 
 	idtype _len; ///< dimensione degli array
+	T* _name; ///< array nomi dei nodi
 	bool* _node; ///< array identificativi nodi
 	bool** _arch; ///< matrice di adiacenza
 
@@ -32,11 +34,13 @@ private:
 
 		la funzione inizializza gli array di
 		identificazione dei nodi e la matrice
-		di adiacenza con valori false
+		di adiacenza con valori false e crea
+		l'array dei nomi dei nodi
 
 		@param len lunghezza array
 	*/
 	inline void init_vars(idtype len){
+		_name = new T[len];
 		_node = new bool[len];
 		_arch = new bool*[len];
 		_len = len;
@@ -58,24 +62,68 @@ private:
 		effettivamente le variabili inserite
 		in ingresso
 
+		@param name array nomi dei nodi
 		@param node array identificativi nodi
 		@param arch matrice di adiacenza
 		@param len lunghezza array e matrice
 	*/
-	inline void destr_vars(bool* node, bool** arch, idtype len){
+	inline void destr_vars(T* name, bool* node, bool** arch, idtype len){
 		delete[] node;
+		delete[] name;
 
-		for(idtype c = 0; c < len; c++)
+		for(idtype c = 0; c < len; c++){
 			delete[] arch[c];
-
+		}
 		delete[] arch;
 	}
 
-	void swap(graph &other)
+	void swap(graph<T> &other)
 	{
+		std::swap(this->_name,other._name);
 		std::swap(this->_node,other._node);
 		std::swap(this->_arch,other._arch);
 		std::swap(this->_len,other._len);
+	}
+
+	/**
+		@brief primo elemento libero
+
+		la funzione ritorna il primo index libero
+		all'interno dell'array dei nodi. Questa 
+		funzione automatizza la gestione degli
+		array per quanto riguarda l'aggiunta
+		dei nodi
+
+		@return idx primo indice disponibile
+	*/
+	idtype first_free(){
+		idtype idx = 0;
+
+		while(idx < _len){
+			if(!_node[idx])
+				break;
+			idx++;
+		}
+
+		return idx;
+	}
+
+	/**
+		@brief indice del nodo
+
+		dato il nome del nodo ritorna il suo
+		id
+
+		@param name nome del nodo
+		@return c indice (ID) del nodo
+	*/
+	const idtype indexof(const T name) const {
+		for(int c = 0; c < _len; c++){
+			if(_name[c] == name)
+				return c;
+		}
+
+		return _len;
 	}
 
 public:
@@ -87,10 +135,11 @@ public:
 		graph ad un valore nullo
 
 		@post _len == 0
+		@post _name == nullptr
 		@post _node == nullptr
 		@post _arch == nullptr
 	*/
-	graph() : _len(0), _node(nullptr), _arch(nullptr)
+	graph() : _len(0), _name(nullptr), _node(nullptr), _arch(nullptr)
 	{
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo vuoto" << std::endl;
@@ -103,14 +152,15 @@ public:
 		costruttore che inizializza la classe
 		graph con un solo nodo
 
-		@param id identificativo nodo
+		@param name nome del nodo
 
 		@post _len == id+1
-		@post _node[id] == true
 	*/
-	graph(idtype id) : _len(0), _node(nullptr), _arch(nullptr)
+	graph(T name) : _len(0), _name(nullptr), _node(nullptr), _arch(nullptr)
 	{
+		idtype id = first_free();
 		init_vars(id+1);
+		_name[id] = name;
 		_node[id] = true;
 
 		#ifndef NDEBUG
@@ -125,12 +175,13 @@ public:
 
 		@param other graph da copiare
 	*/
-	graph(const graph &other) : _len(0), _node(nullptr), _arch(nullptr)
+	graph(const graph<T> &other) : _len(0), _name(nullptr), _node(nullptr), _arch(nullptr)
 	{
 		init_vars(other._len);
 
 		for(idtype c = 0; c < _len; c++){
 			_node[c] = other._node[c];
+			_name[c] = other._name[c];
 			for(idtype d = 0; d < _len; d++){
 				_arch[c][d] = other._arch[c][d];
 			}
@@ -146,7 +197,8 @@ public:
 	*/
 	~graph()
 	{
-		destr_vars(_node,_arch,_len);
+		destr_vars(_name,_node,_arch,_len);
+		_name = nullptr;
 		_node = nullptr;
 		_arch = nullptr;
 		_len = 0;
@@ -162,12 +214,14 @@ public:
 		la funzione verifica l'esistenza di un
 		determinato nodo all'interno del grafo
 
-		@param id nodo da verificare
+		@param name nome del nodo
 		@return res risultato della verifica
 	*/
-	const bool exists(const idtype id) const
+	const bool exists(const T name) const
 	{
-		if(id >= _len){
+		int id = indexof(name);
+
+		if(id == _len){
 			return false;
 		}
 		else{
@@ -182,13 +236,16 @@ public:
 		la funzione verifica l'esistenza di un
 		determinato arco all'interno del grafo
 
-		@param id1 nodo di partenza
-		@param id2 nodo di arrivo
+		@param name1 nome nodo di partenza
+		@param name2 nome nodo di arrivo
 		@return res risultato della verifica
 	*/
-	const bool has_edge(idtype id1, idtype id2) const
+	const bool has_edge(T name1, T name2) const
 	{
-		if(id1 < _len && id2 < _len){
+		if(exists(name1) && exists(name2)){
+			idtype id1 = indexof(name1);
+			idtype id2 = indexof(name2);
+
 			bool res = _arch[id1][id2];
 			return res;
 		} else{
@@ -205,43 +262,29 @@ public:
 
 		@param other graph da confrontare con this
 	*/
-	const bool equals(const graph &other) const {
-		if(_len != other._len)
+	const bool equals(const graph<T> &other) const {
+
+		if(num_nodes() != other.num_nodes() || //stesso num di nodi
+			num_arches() != other.num_arches()) // stesso num di archi
+		{
 			return false;
+		}
 
 		for(idtype c = 0; c < _len; c++){
-			if(_node[c] != other._node[c])
-				return false;
+			if(_node[c]){
+				if(!other.exists(_name[c])) //stessi nodi
+					return false;
+			}
 
 			for(idtype d = 0; d < _len; d++){
-				if(_arch[c][d] != other._arch[c][d])
-					return false;
+				if(_arch[c][d]){
+					if(!other.has_edge(_name[c],_name[d])) // stessi archi
+						return false;
+				}
 			}
 		}
 
 		return true;
-	}
-
-	/**
-		@brief primo elemento libero
-
-		la funzione ritorna il primo index libero
-		all'interno dell'array dei nodi. Questa 
-		funzione è di supporto al metodo add della
-		classe graph templata, per automatizzare la
-		scelta dell'index nel quale aggiungere l'elemento
-
-		@return idx primo indice disponibile
-	*/
-	idtype first_free(){
-		idtype idx = 0;
-
-		for(idx; idx < _len; idx++){
-			if(!_node[idx])
-				return idx;
-		}
-
-		return idx;
 	}
 
 	/**
@@ -255,14 +298,18 @@ public:
 		ex novo della dimensione corretta e copia
 		i dati del vecchio grafo
 
-		@param id identificativo nodo
+		@param name nome del nuovo nodo
 	*/
-	void add(idtype id)
+	void add(T name)
 	{
+		idtype id = first_free();
+		std::cout << "ID LIBERO:" << id << std::endl;//DEBUG
+
 		if(_node == nullptr){ //graph vuoto
 
 			init_vars(id+1); // inizializzo la classe
 			_node[id] = true;
+			_name[id] = name;
 
 		} else if (id < _len) { //id già inizializzato
 
@@ -270,26 +317,30 @@ public:
 				throw logicexception("nodo gia inserito!", 4);
 
 			_node[id] = true;
+			_name[id] = name;
 
 		} else { //id non ancora inizializzato
 
 			bool* node_temp = _node;
+			T* name_temp = _name;
 			bool** arch_temp = _arch;
 			idtype len_temp = _len;
 
 			init_vars(id+1); // reinizializzo la classe
 			_node[id] = true;
+			_name[id] = name;
 
 			//copio i vecchi dati sul nuovo grafo
 			for(idtype c = 0; c < len_temp; c++){
 				_node[c] = node_temp[c];
+				_name[c] = name_temp[c];
 				for(idtype d = 0; d < len_temp; d++){
 					_arch[c][d] = arch_temp[c][d];
 				}
 			}
 
 			//distruggo i vecchi dati
-			destr_vars(node_temp,arch_temp,len_temp);
+			destr_vars(name_temp,node_temp,arch_temp,len_temp);
 
 			#ifndef NDEBUG
 			std::cout << "copiati dati in nuovo grafo" << std::endl;
@@ -303,13 +354,17 @@ public:
 		la funzione crea un arco orientato tra i due
 		nodi selezionati in ingresso
 
-		@param id1 identificativo nodo 1
-		@param id2 identificativo nodo 2
+		@param name1 nome nodo di partenza
+		@param name2 nome nodo di arrivo
 	*/
-	void add(idtype id1, idtype id2)
+	void add(T name1, T name2)
 	{
-		if(!exists(id1) || !exists(id2))
+		if(!exists(name1) || !exists(name2))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
+
+		idtype id1 = indexof(name1);
+		idtype id2 = indexof(name2);
+
 		if(_arch[id1][id2])
 			throw logicexception("arco gia inserito!", 4);
 
@@ -323,17 +378,16 @@ public:
 		nodo e degli archi associati, previo controllo
 		della validità del nodo inserito come parametro
 
-		@param id identificativo nodo
+		@param name nome del nodo da rimuovere
 	*/
-	void remove(idtype id)
+	void remove(T name)
 	{
 		if(_node == nullptr) //grafo vuoto
 			throw logicexception("grafo vuoto!", 1);
-		if(id >= _len) // id non valido
-			throw logicexception("id non valido!", 2);
-		if(!_node[id]) // nodo non presente
+		if(!exists(name)) // nodo non presente
 			throw logicexception("nodo non presente!", 3);
 
+		idtype id = indexof(name);
 		// elimino il nodo
 		_node[id] = false;
 		
@@ -345,7 +399,7 @@ public:
 
 		//se non ci sono più nodi elimino il grafo
 		if(num_nodes() == 0){
-			destr_vars(_node,_arch,_len);
+			destr_vars(_name,_node,_arch,_len);
 			_node = nullptr;
 			_arch = nullptr;
 			_len = 0;
@@ -358,13 +412,17 @@ public:
 		la funzione rimuove l'arco orientato tra i due
 		nodi selezionati in ingresso
 
-		@param id1 identificativo nodo 1
-		@param id2 identificativo nodo 2
+		@param name1 nome nodo di partenza
+		@param name2 nome nodo di arrivo
 	*/
-	void remove(idtype id1, idtype id2)
+	void remove(T name1, T name2)
 	{
-		if(!exists(id1) || !exists(id2))
+		if(!exists(name1) || !exists(name2))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
+
+		idtype id1 = indexof(name1);
+		idtype id2 = indexof(name2);
+
 		if(!_arch[id1][id2])
 			throw logicexception("arco non presente!", 3);
 
@@ -433,10 +491,10 @@ public:
 	*/
 	void print()
 	{
-		std::cout << "ids: ";
+		std::cout << "<name,id>: ";
 		for(idtype c = 0; c < _len; c++){
 			if(_node[c])
-				std::cout << c << ", ";
+				std::cout << "<" << _name[c] << "," << c << ">, ";
 		}
 		std::cout << std::endl;
 
@@ -461,9 +519,9 @@ public:
 		il contenuto di other in *this
 
 		@param other graph da copiare
-		@return reference a graph
+		@return reference a graph<T>
 	*/
-	graph& operator=(const graph &other)
+	graph& operator=(const graph<T> &other)
 	{
 		if(&other != this){ //controllo auto-assegnamento
 			graph tmp(other);
