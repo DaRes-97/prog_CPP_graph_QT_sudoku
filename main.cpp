@@ -187,6 +187,11 @@ void test_utils(const U arr[], unsigned int length)
 	assert(g2.len() == 4);
 	assert(g2.num_nodes() == 4);
 	assert(g2.num_arches() == 2);
+
+	g2.add(arr[4],arr[2]);
+
+	//test print visuale
+	g2.print();
 }
 
 template<typename U>
@@ -218,7 +223,8 @@ void test_operators(const U arr[], unsigned int length)
 }
 
 template<typename U>
-void test_iterators(const U arr[], unsigned int length)
+void test_iterators(const U arr[], unsigned int length,
+					const U arr_final[], unsigned int length_final)
 {
 	graph<U> g1;
 
@@ -228,10 +234,15 @@ void test_iterators(const U arr[], unsigned int length)
 		} catch (logicexception e) {}
 	}
 
-	graph<U>::const_iterator it1, ite1;
+	g1.remove(arr[0]);
+	g1.remove(arr[9]);
 
-	for(it1 = m1.begin(), ite1 = m1.end(); it1 != ite1; ++it1){
-		std::cout << *it1 << " ";
+	typename graph<U>::const_iterator it1, ite1;
+	unsigned int index = 0;
+	for(it1 = g1.begin(), ite1 = g1.end(); it1 != ite1; ++it1){
+		std::cout << *it1 << " <--> " << arr_final[index] << std::endl;
+		assert(*it1 == arr_final[index]);
+		index++;
 	}
 	std::cout << std::endl;
 }
@@ -241,7 +252,7 @@ int main()
 	unsigned int length = 10;
 
 	//ripetuti elementi in index 2-3 e 0-7
-	char arr_char[length] = {'a', 'b', 'c', 'c', 'd', 'e', 'f', 'a', 'g', 'o', 'z'};
+	char arr_char[length] = {'a', 'b', 'c', 'c', 'd', 'e', 'f', 'a', 'g', 'o'};
 	custom arr_custom[length] = {{"mario", "lezzi"}, {"mauro","garli"}, {"giacomo","lundini"}, {"giacomo", "lundini"},
 								{"luigi","garli"}, {"luigi","vincenzi"}, {"filippo", "gurlomi"}, {"mario","lezzi"},
 								{"mario","gastelletti"},{"pedro","hernandez"}};
@@ -265,6 +276,16 @@ int main()
 	std::cout << "----->TEST OPERATORS<-----" << std::endl;
 	test_operators<char>(arr_char,length);
 	test_operators<custom>(arr_custom,length);
+
+	unsigned int length_final = 6;
+	char arr_char_final[length] = {'b', 'c', 'd', 'e', 'f', 'g'};
+	custom arr_custom_final[length] = {{"mauro","garli"}, {"giacomo","lundini"},
+										{"luigi","garli"}, {"luigi","vincenzi"},
+										{"filippo", "gurlomi"}, {"mario","gastelletti"}};
+
+	std::cout << "----->TEST ITERATORS<-----" << std::endl;
+	test_iterators<char>(arr_char,length,arr_char_final,length_final);
+	test_iterators<custom>(arr_custom,length,arr_custom_final,length_final);
 
 	std::cout << ">>>>>>TEST COMPLETATI<<<<<<" << std::endl;
 	return 0;
