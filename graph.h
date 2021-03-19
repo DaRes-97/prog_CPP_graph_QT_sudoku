@@ -124,7 +124,7 @@ private:
 	const idtype indexof(const T name) const
 	{
 		for(int c = 0; c < _len; c++){
-			if(_name[c] == name)
+			if(_node[c] && _name[c] == name)
 				return c;
 		}
 
@@ -354,6 +354,10 @@ public:
 			std::cout << "copiati dati in nuovo grafo" << std::endl;
 			#endif
 		}
+
+		#ifndef NDEBUG
+		std::cout << "nodo aggiunto correttamente" << std::endl;
+		#endif
 	}
 
 	/**
@@ -377,6 +381,10 @@ public:
 			throw logicexception("arco gia inserito!", 4);
 
 		_arch[id1][id2] = true;
+
+		#ifndef NDEBUG
+		std::cout << "arco aggiunto correttamente" << std::endl;
+		#endif
 	}
 
 	/**
@@ -408,10 +416,15 @@ public:
 		//se non ci sono più nodi elimino il grafo
 		if(num_nodes() == 0){
 			destr_vars(_name,_node,_arch,_len);
+			_name = nullptr;
 			_node = nullptr;
 			_arch = nullptr;
 			_len = 0;
 		}
+
+		#ifndef NDEBUG
+		std::cout << "nodo eliminato correttamente" << std::endl;
+		#endif
 	}
 
 	/**
@@ -435,6 +448,10 @@ public:
 			throw logicexception("arco non presente!", 3);
 
 		_arch[id1][id2] = false;
+
+		#ifndef NDEBUG
+		std::cout << "arco eliminato correttamente" << std::endl;
+		#endif
 	}
 
 	/**
