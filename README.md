@@ -2,7 +2,7 @@
 
 Resmini Daniele Andrea	MAT: 830446	
 
-[d.resmini2@campus.unimib.it]: d.resmini2@campus.unimib.it	"mail di ateneo"
+[d.resmini2@campus.unimib.it](mailto:d.resmini2@campus.unimib.it)
 
 ## PROGETTO C++ - GRAPH
 
@@ -120,7 +120,7 @@ Ai fini del controllo, non conta l'ordine dei nomi delle celle, ne l'*ID* a cui 
 
 un esempio di output:
 
-![sample_graph_print](.\sample_graph_print.png)
+![](https://drive.google.com/uc?id=12O8ewNtKoqiQG0Ahckv4f5ML-5syaEi-)
 
 ### ITERATORI
 
