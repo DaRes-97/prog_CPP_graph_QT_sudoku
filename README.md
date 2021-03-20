@@ -43,7 +43,7 @@ supponiamo ora che voglia rimuovere l'elemento *name3*, allora invocherò la fun
 | **name** | name1 | name2 |   name3   | name4 | name5 |
 | **node** | true  | true  | **false** | true  | true  |
 
-- nel momento in cui dovrò aggiungere un altro nodo, invece di aumentare di nuovo la dimensione dell'array, esso occuperà la prima cella disponibile, in questo caso *ID=2*, e il valore *name3* verrà sovrascritto
+- nel momento in cui dovrò aggiungere un altro nodo, invece di aumentare di nuovo la dimensione dell'array, esso occuperà la prima cella disponibile, in questo caso *ID=2*, e il valore *name3* verrà sovrascritto. Ciò avviene grazie al metodo `first_free()`, che ritorna la prima cella disponibile per l'allocazione di un nuovo nodo
 
 ### AGGIUNTA/RIMOZIONE DI ARCHI
 

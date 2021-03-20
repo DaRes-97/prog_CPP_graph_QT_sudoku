@@ -24,9 +24,11 @@ private slots:
 
     void on_nextButton_clicked();
 
-    void set_cells();
-
 private:
     Ui::Sudoku *ui;
+
+    bool has_duplicates(int* arr);
+    bool check_row(int row);
+    bool check_column(int column);
 };
 #endif // SUDOKU_H
