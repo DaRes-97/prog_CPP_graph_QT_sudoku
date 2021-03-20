@@ -649,7 +649,8 @@ public:
 	}; // classe const_iterator
 
 	// Ritorna l'iteratore all'inizio della sequenza dati
-	const_iterator begin() const {
+	const_iterator begin() const
+	{
 		T* ptr_name = _name;
 		bool* ptr_node = _node;
 
@@ -662,7 +663,8 @@ public:
 	}
 	
 	// Ritorna l'iteratore alla fine della sequenza dati
-	const_iterator end() const {
+	const_iterator end() const
+	{
 		T* ptr_name = _name+_len-1;
 		bool* ptr_node = _node+_len-1;
 
