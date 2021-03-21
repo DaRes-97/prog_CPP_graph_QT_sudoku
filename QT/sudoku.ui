@@ -1374,13 +1374,6 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="11">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="2">
          <widget class="QLineEdit" name="lineEdit_7">
           <property name="sizePolicy">
@@ -2266,13 +2259,6 @@
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0" colspan="11">
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -3168,6 +3154,48 @@
          <widget class="Line" name="line_8">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4" colspan="3">
+         <widget class="Line" name="line_9">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="8" colspan="3">
+         <widget class="Line" name="line_10">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="4" colspan="3">
+         <widget class="Line" name="line_11">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="8" colspan="3">
+         <widget class="Line" name="line_12">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="3">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="3">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>

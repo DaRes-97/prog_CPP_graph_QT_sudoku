@@ -82,7 +82,7 @@ per esempio, se volessi settare un arco tra *name2* e *name4*:
 |   **3**   | false | false | false |  false   | false |
 |   **4**   | false | false | false |  false   | false |
 
-`arch[2][4] = true;`
+`arch[1][3] = true;`
 
 stesso procedimento per la rimozione, settando la casella appropriata a *false*
 

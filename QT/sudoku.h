@@ -2,6 +2,7 @@
 #define SUDOKU_H
 
 #include <QMainWindow>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Sudoku; }
@@ -26,9 +27,13 @@ private slots:
 
 private:
     Ui::Sudoku *ui;
+    QList<int**> states; //stadi di risoluzione
 
+    int correct_index(int idx);
     bool has_duplicates(int* arr);
+    bool is_full();
     bool check_row(int row);
     bool check_column(int column);
+    bool check_sector(int sector);
 };
 #endif // SUDOKU_H
