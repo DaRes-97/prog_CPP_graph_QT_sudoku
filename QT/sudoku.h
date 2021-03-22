@@ -31,6 +31,7 @@ private:
     QStack<QVector<QVector<int>>> next;
 
     bool solve();
+    bool solve_internal(int row, int col, int val);
 
     int correct_index(int idx);
 
@@ -45,6 +46,7 @@ private:
     bool check_array(QVector<int> arr);
     bool check_grid(QVector<QVector<int>> matrix);
     QVector<QVector<int>> get_content();
+    QVector<QVector<int>> init_content(int n);
     void set_content(QVector<QVector<int>> matrix);
 };
 #endif // SUDOKU_H

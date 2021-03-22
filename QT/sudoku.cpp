@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 #include <QMessageBox>
+#include <QRandomGenerator>
 
 Sudoku::Sudoku(QWidget *parent)
     : QMainWindow(parent)
@@ -36,7 +37,7 @@ void Sudoku::on_solveButton_clicked()
 
     //esito della risoluzione
     QString msg;
-    msg = res ? "risolto" : "non risolvibile";
+    msg = res ? "Sudoku risolto" : "Sudoku non risolvibile";
     QMessageBox msgBox;
     msgBox.setText(msg);
     msgBox.setWindowTitle("Response");
@@ -60,8 +61,8 @@ void Sudoku::on_solveButton_clicked()
 //resetta lo stato iniziale del programma
 void Sudoku::on_resetButton_clicked()
 {
-    prev.empty();
-    next.empty();
+    prev.clear();
+    next.clear();
     foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
         le->setText("");
         le->setEnabled(true);
@@ -71,6 +72,9 @@ void Sudoku::on_resetButton_clicked()
     ui->solveButton->setEnabled(true);
     ui->prevButton->setEnabled(false);
     ui->nextButton->setEnabled(false);
+
+    QVector<QVector<int>> matrix = init_content(20);
+    set_content(matrix);
 }
 
 //torna indietro di un passo nella risoluzione
@@ -98,48 +102,40 @@ void Sudoku::on_nextButton_clicked()
 }
 
 //risolve il sudoku con la tecnica del backtracking
-//salvando tutti gli stati intermedi
-bool Sudoku::solve(){
+//salvando gli stati intermedi
+bool Sudoku::solve()
+{
     QVector<QVector<int>> matrix = prev.pop();
 
-    if(!check_grid(matrix)){
-        prev.push(matrix);
-        return false;
-    }
-
     if(is_full(matrix)){
-
         prev.push(matrix);
         return check_grid(matrix);
-
-    } else {
-        int col = 0;
-        int row = 0;
-        for(int c = 0; c < 9; c++){
-            for(int d = 0; d < 9; d++){
-                if(matrix[c][d] == 0){
-                    row = c;
-                    col = d;
-                }
-            }
-        }
-        for(int c = 1; c <= 9; c++){
-            matrix[row][col] = c;
-            if(check_grid(matrix)){
-                prev.push(matrix);
-                if(solve()){
-                    return true;
-                }
-            }
-        }
-
-        prev.push(matrix);
-        return false;
     }
+
+    int row = 0;
+    int col = 0;
+
+    for(int c = 0; c < 9; c++){
+        for(int d = 0; d < 9; d++){
+            if(matrix[c][d] == 0){
+                row = c;
+                col = d;
+            }
+        }
+    }
+
+    prev.push(matrix);
+    return solve_internal(row,col,1);
+}
+
+bool Sudoku::solve_internal(int row, int col, int val)
+{
+
 }
 
 //colora la colonna selezionata col colore selezionato
-void Sudoku::back_col(int col,bool isred){
+void Sudoku::back_col(int col,bool isred)
+{
     QString style;
     if(isred){
         style = "QLineEdit { background: rgb(255, 150, 150);"
@@ -314,6 +310,35 @@ bool Sudoku::check_grid(QVector<QVector<int>> matrix)
     return true;
 }
 
+//riempie la griglia del numero di valori casuali da 1
+//a 9 indicati dalla variabile num
+QVector<QVector<int>> Sudoku::init_content(int num)
+{
+    QVector<QVector<int>> content;
+
+    for(int c = 0; c < 9; c++){
+        QVector<int> vect;
+        for(int d = 0; d < 9; d++){
+            vect.append(0);
+        }
+        content.append(vect);
+    }
+
+    for(int c = 1; c <= num; c++){
+        int row = std::rand() % 9;
+        int col = std::rand() % 9;
+
+        do{
+            int val = 1 + ( std::rand() % 9);
+
+            content[row][col] = val;
+
+        }while(!check_grid(content));
+    }
+
+    return content;
+}
+
 //il metodo acquisisce il contenuto
 //delle celle del sudoku in una matrice
 //9x9
@@ -373,6 +398,8 @@ void Sudoku::set_content(QVector<QVector<int>> matrix)
                     int val = matrix[c][d];
                     QString str = (val == 0) ? "" : QString::number(val);
                     le->setText(str);
+                    if(val != 0)
+                        le->setEnabled(false);
                 }
             }
         }
