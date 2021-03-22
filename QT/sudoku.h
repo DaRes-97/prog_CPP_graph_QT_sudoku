@@ -30,10 +30,11 @@ private:
     QList<int**> states; //stadi di risoluzione
 
     int correct_index(int idx);
-    bool has_duplicates(int* arr);
-    bool is_full();
-    bool check_row(int row);
-    bool check_column(int column);
-    bool check_sector(int sector);
+    bool is_full(QVector<QVector<int>> matrix);
+    bool check_row(QVector<QVector<int>> matrix, int row);
+    bool check_column(QVector<QVector<int>> matrix, int column);
+    bool check_sector(QVector<QVector<int>> matrix, int sector);
+    QVector<QVector<int>> get_content();
+    void set_content(QVector<QVector<int>> matrix);
 };
 #endif // SUDOKU_H

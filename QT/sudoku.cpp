@@ -2,6 +2,7 @@
 #include "ui_sudoku.h"
 #include <QIntValidator>
 #include <QObject>
+#include <QVector>
 #include <QMessageBox>
 
 Sudoku::Sudoku(QWidget *parent)
@@ -27,22 +28,34 @@ Sudoku::~Sudoku()
 
 void Sudoku::on_solveButton_clicked()
 {
+    QVector<QVector<int>> matrix = get_content();
     //DEBUG CHECKS
-    bool r = check_row(correct_index(5));
-    bool c = check_column(correct_index(5));
-    bool s = check_sector(5);
+        bool r = check_row(matrix,5);
+        bool c = check_column(matrix,5);
+        bool s = check_sector(matrix,5);
 
-    QString msg = "";
-    if(r)
-        msg.append("row correct/");
-    if(c)
-        msg.append("col correct/");
-    if(s)
-        msg.append("sect correct");
-    QMessageBox msgBox;
-    msgBox.setText(msg);
-    msgBox.setWindowTitle("Info Message");
-    msgBox.exec();
+        QString msg = "";
+        if(r)
+            msg.append("row correct/");
+        if(c)
+            msg.append("col correct/");
+        if(s)
+            msg.append("sect correct");
+        QMessageBox msgBox;
+        msgBox.setText(msg);
+        msgBox.setWindowTitle("Info Message");
+        msgBox.exec();
+
+        QVector<QVector<int>> test;
+        for(int c = 0; c < 9; c++){
+            QVector<int> row;
+            for(int d = 0; d < 9; d++)
+                row.append(4);
+            test.append(row);
+        }
+
+        set_content(test);
+    //FINE DEBUG////////
 }
 
 void Sudoku::on_resetButton_clicked()
@@ -71,126 +84,141 @@ void Sudoku::on_nextButton_clicked()
 //che occupano una posizione
 int Sudoku::correct_index(int n)
 {
-    int idx = n-1;
+    int idx = n;
     int res = 0;
 
-    if(idx == 3){
-        res = 4;
-    } else if(idx > 3 && idx < 7){
+    if(idx < 3){
+        res = idx;
+    } else if(idx >= 3 && idx < 6){
         res = idx+1;
-    } else if (idx == 7){
-        res = 8;
-    } else if(idx > 7){
+    } else if(idx >= 6){
         res = idx+2;
     }
 
     return res;
 }
 
-//la funzione determina se sono presenti
-//duplicati nell'array in ingresso, tranne
-//lo zero
-bool Sudoku::has_duplicates(int* arr)
-{
-    int count;
-    for(int c = 1; c <= 9; c++){
-        count = 0;
-        for(int d = 0; d < 10; d++){
-            if(arr[d] == c)
-                count++;
-        }
-        if(count > 1)
-            return false;
-    }
-
-    return true;
-}
-
 //controlla che tutte le caselle
 //siano state riempite
-bool Sudoku::is_full()
+bool Sudoku::is_full(QVector<QVector<int>> matrix)
 {
-    foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
-        QString str = le->text();
-        if(str.isEmpty())
+    QVectorIterator<QVector<int>> iter(matrix);
+    while(iter.hasNext()){
+        if(iter.next().contains(0))
             return false;
     }
-
     return true;
 }
 
 //controllo che nella riga non ci siano
 //elementi ripetuti tranne lo 0 (row da 1 a 9)
-bool Sudoku::check_row(int row)
+bool Sudoku::check_row(QVector<QVector<int>> matrix, int row)
 {
-    int l[9];
-    int idx = 0;
-
-    for(int d = 0; d <= 10; d++){
-        QLayoutItem* item = ui->cellsLayout->itemAtPosition(row,d);
-        if(item){
-            QWidget* widget = item->widget();
-            QLineEdit* le = dynamic_cast<QLineEdit*>(widget);
-            if(le){
-                QString val = le->text();
-                l[idx] = (val.isEmpty()) ? 0 : val.toInt();
-                idx++;
-            }
-        }
+    QVector<int> vect = matrix[row];
+    for(int c = 1; c <= 9; c++){
+        if(vect.count(c) > 1)
+            return false;
     }
-
-    return has_duplicates(l);
+    return true;
 }
 
 //controllo che nella colonna non ci siano
 //elementi ripetuti tranne lo 0 (col da 1 a 9)
-bool Sudoku::check_column(int col)
+bool Sudoku::check_column(QVector<QVector<int>> matrix, int col)
 {
-    int l[9];
-    int idx = 0;
-
-    for(int d = 0; d <= 10; d++){
-        QLayoutItem* item = ui->cellsLayout->itemAtPosition(d,col);
-        if(item){
-            QWidget* widget = item->widget();
-            QLineEdit* le = dynamic_cast<QLineEdit*>(widget);
-            if(le){
-                QString val = le->text();
-                l[idx] = (val.isEmpty()) ? 0 : val.toInt();
-                idx++;
-            }
-        }
+    QVector<int> vect;
+    QVectorIterator<QVector<int>> iter(matrix);
+    while(iter.hasNext()){
+        vect.append(iter.next()[col]);
     }
 
-    return has_duplicates(l);
+    for(int c = 1; c <= 9; c++){
+        if(vect.count(c) > 1)
+            return false;
+    }
+    return true;
 }
 
 //controlla che non ci siano elementi
 //ripetuti nel settore 3x3 definito tramite
 //una variabile intera da 1 a 9
-bool Sudoku::check_sector(int sect)
+bool Sudoku::check_sector(QVector<QVector<int>> matrix, int sect)
 {
-    int row = ((sect-1)/3)*4;
-    int col = ((sect-1)%3)*4;
-    row = correct_index(row);
-    col = correct_index(col);
-    int l[9];
-    int idx = 0;
+    int row = ((sect-1)/3)*3;
+    int col = ((sect-1)%3)*3;
+    int count = 0;
+    QVector<QVector<int>> submatrix;
 
+    //settore di controllo
     for(int c = row; c <= row+2; c++){
+        QVector<int> row;
         for(int d = col; d <= col+2; d++){
-            QLayoutItem* item = ui->cellsLayout->itemAtPosition(c,d);
+            row.append(matrix[c][d]);
+        }
+        submatrix.append(row);
+    }
+
+    //intercetto duplicati
+    for(int b = 1; b <= 9; b++){
+        count = 0;
+        for(int c = 0; c < 3; c++){
+            for(int d = 0; d < 3; d++){
+                if(submatrix[c][d] == b)
+                    count++;
+            }
+        }
+        if(count > 1)
+            return false;
+    }
+    return true;
+}
+
+//il metodo acquisisce il contenuto
+//delle celle del sudoku in una matrice
+//9x9
+QVector<QVector<int>> Sudoku::get_content(){
+    QVector<QVector<int>> content;
+
+    for(int c = 0; c <= 10; c++){
+        if(c != 3 && c != 7){
+            QVector<int> row;
+            for(int d = 0; d <= 10; d++){
+                QLayoutItem* item = ui->cellsLayout->itemAtPosition(c,d);
+                if(item){
+                    QWidget* widget = item->widget();
+                    QLineEdit* le = dynamic_cast<QLineEdit*>(widget);
+                    if(le){
+                        QString val = le->text();
+                        int n = (val.isEmpty()) ? 0 : val.toInt();
+                        row.append(n);
+                    }
+                }
+            }
+            content.append(row);
+        }
+    }
+
+    return content;
+}
+
+//il metodo setta il contenuto di una matrice 9x9
+//all'interno dello spazio di gioco
+void Sudoku::set_content(QVector<QVector<int>> matrix)
+{
+    for(int c = 0; c < 9; c++){
+        for(int d = 0; d < 9; d++){
+            int correct_row = correct_index(c);
+            int correct_col = correct_index(d);
+            QLayoutItem* item = ui->cellsLayout->itemAtPosition(correct_row,correct_col);
             if(item){
                 QWidget* widget = item->widget();
                 QLineEdit* le = dynamic_cast<QLineEdit*>(widget);
                 if(le){
-                    QString val = le->text();
-                    l[idx] = (val.isEmpty()) ? 0 : val.toInt();
-                    idx++;
+                    int val = matrix[c][d];
+                    QString str = (val == 0) ? "" : QString::number(val);
+                    le->setText(str);
                 }
             }
         }
     }
-
-    return has_duplicates(l);
 }
