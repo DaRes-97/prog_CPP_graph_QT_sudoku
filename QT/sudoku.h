@@ -35,8 +35,11 @@ private:
     int correct_index(int idx);
 
     QVector<int> col(QVector<QVector<int>> matrix, int col);
+    void back_col(int col, bool isred);
     QVector<int> row(QVector<QVector<int>> matrix, int row);
+    void back_row(int row, bool isred);
     QVector<int> sect(QVector<QVector<int>> matrix, int sect);
+    void back_sect(int sect, bool isred);
 
     bool is_full(QVector<QVector<int>> matrix);
     bool check_array(QVector<int> arr);

@@ -65,6 +65,8 @@ void Sudoku::on_resetButton_clicked()
     foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
         le->setText("");
         le->setEnabled(true);
+        le->setStyleSheet("QLineEdit { background: rgb(255, 255, 255);"
+                    " selection-background-color: rgb(0, 0, 255); }");
     }
     ui->solveButton->setEnabled(true);
     ui->prevButton->setEnabled(false);
@@ -136,6 +138,31 @@ bool Sudoku::solve(){
     }
 }
 
+//colora la colonna selezionata col colore selezionato
+void Sudoku::back_col(int col,bool isred){
+    QString style;
+    if(isred){
+        style = "QLineEdit { background: rgb(255, 150, 150);"
+                "selection-background-color: rgb(0, 0, 255); }";
+    } else {
+        style = "QLineEdit { background: rgb(255, 255, 255);"
+                "selection-background-color: rgb(0, 0, 255); }";
+    }
+
+    for(int d = 0; d < 9; d++){
+        int correct_row = correct_index(d);
+        int correct_col = correct_index(col);
+        QLayoutItem* item = ui->cellsLayout->itemAtPosition(correct_row,correct_col);
+        if(item){
+            QWidget* widget = item->widget();
+            QLineEdit* le = dynamic_cast<QLineEdit*>(widget);
+            if(le){
+                le->setStyleSheet(style);
+            }
+        }
+    }
+}
+
 //ritorna la colonna indicata
 QVector<int> Sudoku::col(QVector<QVector<int>> matrix, int col)
 {
@@ -148,11 +175,67 @@ QVector<int> Sudoku::col(QVector<QVector<int>> matrix, int col)
     return vect;
 }
 
+//colora la riga selezionata di rosso
+void Sudoku::back_row(int row, bool isred){
+    QString style;
+    if(isred){
+        style = "QLineEdit { background: rgb(255, 150, 150);"
+                "selection-background-color: rgb(0, 0, 255); }";
+    } else {
+        style = "QLineEdit { background: rgb(255, 255, 255);"
+                "selection-background-color: rgb(0, 0, 255); }";
+    }
+    for(int d = 0; d < 9; d++){
+        int correct_row = correct_index(row);
+        int correct_col = correct_index(d);
+        QLayoutItem* item = ui->cellsLayout->itemAtPosition(correct_row,correct_col);
+        if(item){
+            QWidget* widget = item->widget();
+            QLineEdit* le = dynamic_cast<QLineEdit*>(widget);
+            if(le){
+                le->setStyleSheet(style);
+            }
+        }
+    }
+}
+
 //ritorna la riga indicata
 QVector<int> Sudoku::row(QVector<QVector<int>> matrix, int row)
 {
     QVector<int> vect = matrix[row];
     return vect;
+}
+
+//colora il settore selezionato di rosso
+void Sudoku::back_sect(int sect,bool isred)
+{
+    int row = ((sect-1)/3)*3;
+    int col = ((sect-1)%3)*3;
+    row = correct_index(row);
+    col = correct_index(col);
+    QString style;
+    if(isred){
+        style = "QLineEdit { background: rgb(255, 150, 150);"
+                "selection-background-color: rgb(0, 0, 255); }";
+    } else {
+        style = "QLineEdit { background: rgb(255, 255, 255);"
+                "selection-background-color: rgb(0, 0, 255); }";
+    }
+
+    for(int c = row; c <= row+2; c++){
+        if(c != 3 && c != 7){
+            for(int d = col; d <= col+2; d++){
+                QLayoutItem* item = ui->cellsLayout->itemAtPosition(c,d);
+                if(item){
+                    QWidget* widget = item->widget();
+                    QLineEdit* le = dynamic_cast<QLineEdit*>(widget);
+                    if(le){
+                        le->setStyleSheet(style);
+                    }
+                }
+            }
+        }
+    }
 }
 
 //ritorna il settore indicato
@@ -260,10 +343,25 @@ QVector<QVector<int>> Sudoku::get_content(){
 }
 
 //il metodo setta il contenuto di una matrice 9x9
-//all'interno dello spazio di gioco
+//all'interno dello spazio di gioco e setta sfondo rosso
+//sui settori errati
 void Sudoku::set_content(QVector<QVector<int>> matrix)
 {
     for(int c = 0; c < 9; c++){
+        back_row(c,false);
+        back_col(c,false);
+        back_sect(c+1,false);
+    }
+
+    for(int c = 0; c < 9; c++){
+
+        if(!check_array(row(matrix,c)))
+            back_row(c,true);
+        if(!check_array(col(matrix,c)))
+            back_col(c,true);
+        if(!check_array(sect(matrix,c+1)))
+            back_sect(c+1,true);
+
         for(int d = 0; d < 9; d++){
             int correct_row = correct_index(c);
             int correct_col = correct_index(d);
