@@ -2,7 +2,7 @@
 #define SUDOKU_H
 
 #include <QMainWindow>
-#include <QList>
+#include <QStack>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Sudoku; }
@@ -27,13 +27,20 @@ private slots:
 
 private:
     Ui::Sudoku *ui;
-    QList<int**> states; //stadi di risoluzione
+    QStack<QVector<QVector<int>>> prev;
+    QStack<QVector<QVector<int>>> next;
+
+    bool solve();
 
     int correct_index(int idx);
+
+    QVector<int> col(QVector<QVector<int>> matrix, int col);
+    QVector<int> row(QVector<QVector<int>> matrix, int row);
+    QVector<int> sect(QVector<QVector<int>> matrix, int sect);
+
     bool is_full(QVector<QVector<int>> matrix);
-    bool check_row(QVector<QVector<int>> matrix, int row);
-    bool check_column(QVector<QVector<int>> matrix, int column);
-    bool check_sector(QVector<QVector<int>> matrix, int sector);
+    bool check_array(QVector<int> arr);
+    bool check_grid(QVector<QVector<int>> matrix);
     QVector<QVector<int>> get_content();
     void set_content(QVector<QVector<int>> matrix);
 };
