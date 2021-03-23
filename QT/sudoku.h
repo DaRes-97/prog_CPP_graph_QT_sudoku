@@ -30,16 +30,15 @@ private:
     QStack<QVector<QVector<int>>> prev;
     QStack<QVector<QVector<int>>> next;
 
-    bool solve();
-    bool solve_internal(int row, int col, int val);
+    bool solve(QVector<QVector<int>> matrix, int row, int col);
 
     int correct_index(int idx);
 
-    QVector<int> col(QVector<QVector<int>> matrix, int col);
+    QVector<int> get_col(QVector<QVector<int>> matrix, int col);
     void back_col(int col, bool isred);
-    QVector<int> row(QVector<QVector<int>> matrix, int row);
+    QVector<int> get_row(QVector<QVector<int>> matrix, int row);
     void back_row(int row, bool isred);
-    QVector<int> sect(QVector<QVector<int>> matrix, int sect);
+    QVector<int> get_sect(QVector<QVector<int>> matrix, int sect);
     void back_sect(int sect, bool isred);
 
     bool is_full(QVector<QVector<int>> matrix);

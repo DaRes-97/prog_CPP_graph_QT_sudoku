@@ -27,7 +27,7 @@ il grafo è stato implementato tramite **array dinamici**:
 
 ### AGGIUNTA/RIMOZIONE DI NODI
 
-inizialmente, l'array viene riempito in modo sequenziale, aumentando di volta la dimensione degli array di supporto e copiando i dati precedenti:
+inizialmente, l'array viene riempito in modo sequenziale (`add(T name)`), aumentando di volta la dimensione degli array di supporto e copiando i dati precedenti:
 
 |    ID    |   0   |   1   |   2   |   3   |   4   |
 | :------: | :---: | :---: | :---: | :---: | :---: |
@@ -71,7 +71,7 @@ per esempio, se volessi settare un arco tra *name2* e *name4*:
 | **name** | name1 | name2 |   name3   | name4 | name5 |
 | **node** | true  | true  | **false** | true  | true  |
 
-`indexof(name2) == 1`, `indexof(name4) == 3`
+➔ `indexof(name2) == 1`, `indexof(name4) == 3`
 
 
 | 🠗ID1/ID2🠖 |   0   |   1   |   2   |    3     |   4   |
@@ -82,12 +82,12 @@ per esempio, se volessi settare un arco tra *name2* e *name4*:
 |   **3**   | false | false | false |  false   | false |
 |   **4**   | false | false | false |  false   | false |
 
-`arch[1][3] = true;`
+➔ `arch[1][3] = true;`
 
 stesso procedimento per la rimozione, settando la casella appropriata a *false*
 
-- tutti gli array mantengono la stessa dimensione durante tutto il ciclo del programma
-- la rimozione di un nodo comporta anche l'eliminazione di tutti gli archi entranti ed uscenti da esso
+- gli array mantengono una dimensione coerente durante tutto il ciclo del programma
+- la rimozione di un nodo comporta anche l'**eliminazione di tutti gli archi entranti ed uscenti da esso**
 - nel momento in cui tutti i nodi dell'array sono settati *false*, gli array vengono **deinizializzati**
 
 ### EXISTS/HAS_EDGE
@@ -178,8 +178,64 @@ pertanto viene attuata una politica di incremento <u>basilare</u>:
 
 ## PROGETTO QT - SUDOKU
 
-Il Sudoku è un gioco di logica nel quale al giocatore viene proposta una griglia di 9×9 celle, ciascuna delle quali può contenere un numero da 1 a 9, oppure essere vuota; la griglia è suddivisa in 9 righe orizzontali, 9 colonne verticali e in 9 "sottogriglie" di 3×3 celle contigue. Queste sottogriglie sono delimitate da bordi in neretto e chiamate regioni. Lo scopo del gioco è quello di riempire le caselle bianche con numeri da 1 a 9 in modo tale che in ogni riga, in ogni colonna e in ogni regione siano presenti tutte le cifre da 1 a 9, quindi senza ripetizioni. 
+Il gioco è stato implementato mediante una griglia 9x9 di elementi `QLineEdit`, che costituiscono le caselle del Sudoku, e da una serie di pulsanti che consentono di interagire con le funzionalità del programma.
+
+all'apertura dell'eseguibile viene settata la griglia di gioco e vengono generati 20 valori casuali in altrettante caselle random
+
+la schermata iniziale si presenta in questo modo:
+
+![](https://drive.google.com/uc?id=1y_1yc5ZKnLbxDfgA02qzov26c8XiadAP)
 
 ------
 
-In questo caso il gioco è stato implementato mediante una griglia 9x9 di elementi `QLineEdit`, che costituiscono le caselle del Sudoku, e da una serie di pulsanti che consentono di interagire con le funzionalità del programma
+a questo punto, l'utente può iniziare ad inserire i numeri nelle caselle attive
+
+una volta finito, cliccando sul tasto **SOLVE**, si attiva il sistema di risoluzione
+
+- se la griglia è già stata riempita, il sistema controlla la **correttezza dei valori immessi** ( non deve essere presente nessun duplicato)
+- altrimenti, **inserisce i valori in maniera automatica** ove compatibile con il rispetto delle regole del gioco
+
+se la griglia finale risulta **corretta**, appare un messaggio della riuscita dell'operazione e si attivano le frecce **<** e **>** che consentono di ripercorrere i diversi stadi della risoluzione
+
+![](https://drive.google.com/uc?id=1iPhUp_rd6dnk2Oq-mZsNmmVKitUT8uF8)
+
+![](https://drive.google.com/uc?id=1gj3kUQ5cBmyTAdk145euWexsRBuy7RaA)
+
+------
+
+In caso di **errori** nella risoluzione, il sistema si blocca e vengono evidenziati i settori di gioco che presentano duplicati:
+
+![](https://drive.google.com/uc?id=1p6BoEZhLEGVHVyPVxHOmwgs5kaDUTZ2v)
+
+premendo il tasto **RESET** il gioco ritorna allo stato inziale
+
+------
+
+### IMPLEMENTAZIONE INTERNA
+
+- gli stati di risoluzione intermedi sono stati implementati tramite due **Qstack**, `prev` e `next`, che vengono riempite e svuotate alternativamente
+- l'algoritmo di risoluzione automatica utilizza la tecnica del **backtracking**, di cui sotto:
+
+```java
+bool solve(configuration conf){
+	
+	//base case
+	if(!choices)
+		return has_duplicates(conf);
+
+	for(all choices) {
+		try choice c;
+
+		//correct choice
+		if(solve(conf with choice c))
+			return true;
+
+		//wrong choice
+		unmake choice c;
+	}
+
+    //backtrack trigger
+	return false;
+}
+```
+

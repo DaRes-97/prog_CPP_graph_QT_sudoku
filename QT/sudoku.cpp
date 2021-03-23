@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QMessageBox>
 #include <QRandomGenerator>
+#include <QThread>
 
 Sudoku::Sudoku(QWidget *parent)
     : QMainWindow(parent)
@@ -30,10 +31,23 @@ void Sudoku::on_solveButton_clicked()
 {
     //acquisisco i valori delle celle
     QVector<QVector<int>> matrix = get_content();
-    prev.push(matrix);
+
+    // trovo ll'ultima cella libera
+    int row = 0;
+    int col = 0;
+
+    for(int c = 0; c < 9; c++)
+        for(int d = 0; d < 9; d++)
+            if(matrix[c][d] == 0){
+                row = c;
+                col = d;
+            }
 
     //risolvo il sudoku
-    bool res = solve();
+    bool res = solve(matrix,row,col);
+    next.push(matrix);
+    while(!next.isEmpty())
+        prev.push(next.pop());
 
     //esito della risoluzione
     QString msg;
@@ -61,8 +75,14 @@ void Sudoku::on_solveButton_clicked()
 //resetta lo stato iniziale del programma
 void Sudoku::on_resetButton_clicked()
 {
+    //svuoto le stack
     prev.clear();
     next.clear();
+
+    //per evitare crash
+    //QThread::msleep(2000);
+
+    //riporto il widget allo stato iniziale
     foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
         le->setText("");
         le->setEnabled(true);
@@ -73,6 +93,7 @@ void Sudoku::on_resetButton_clicked()
     ui->prevButton->setEnabled(false);
     ui->nextButton->setEnabled(false);
 
+    //setto il nuovo stato di partenza
     QVector<QVector<int>> matrix = init_content(20);
     set_content(matrix);
 }
@@ -103,34 +124,40 @@ void Sudoku::on_nextButton_clicked()
 
 //risolve il sudoku con la tecnica del backtracking
 //salvando gli stati intermedi
-bool Sudoku::solve()
-{
-    QVector<QVector<int>> matrix = prev.pop();
 
+bool Sudoku::solve(QVector<QVector<int>> matrix, int row, int col)
+{
     if(is_full(matrix)){
-        prev.push(matrix);
         return check_grid(matrix);
     }
 
-    int row = 0;
-    int col = 0;
+    for(int c = 1; c <= 9; c++){
 
-    for(int c = 0; c < 9; c++){
-        for(int d = 0; d < 9; d++){
-            if(matrix[c][d] == 0){
-                row = c;
-                col = d;
+        QVector<QVector<int>> new_matrix = matrix;
+        new_matrix[row][col] = c;
+
+        if(check_grid(new_matrix)){
+
+            int new_row = 0;
+            int new_col = 0;
+            for(int c = 0; c < 9; c++){
+                for(int d = 0; d < 9; d++){
+                    if(new_matrix[c][d] == 0){
+                        new_row = c;
+                        new_col = d;
+                    }
+                }
+            }
+
+            if(solve(new_matrix,new_row,new_col)){
+                next.push(new_matrix);
+                return true;
             }
         }
+
     }
 
-    prev.push(matrix);
-    return solve_internal(row,col,1);
-}
-
-bool Sudoku::solve_internal(int row, int col, int val)
-{
-
+    return false;
 }
 
 //colora la colonna selezionata col colore selezionato
@@ -160,7 +187,7 @@ void Sudoku::back_col(int col,bool isred)
 }
 
 //ritorna la colonna indicata
-QVector<int> Sudoku::col(QVector<QVector<int>> matrix, int col)
+QVector<int> Sudoku::get_col(QVector<QVector<int>> matrix, int col)
 {
     QVector<int> vect;
     QVectorIterator<QVector<int>> iter(matrix);
@@ -196,7 +223,7 @@ void Sudoku::back_row(int row, bool isred){
 }
 
 //ritorna la riga indicata
-QVector<int> Sudoku::row(QVector<QVector<int>> matrix, int row)
+QVector<int> Sudoku::get_row(QVector<QVector<int>> matrix, int row)
 {
     QVector<int> vect = matrix[row];
     return vect;
@@ -235,7 +262,7 @@ void Sudoku::back_sect(int sect,bool isred)
 }
 
 //ritorna il settore indicato
-QVector<int> Sudoku::sect(QVector<QVector<int>> matrix, int sect)
+QVector<int> Sudoku::get_sect(QVector<QVector<int>> matrix, int sect)
 {
     int row = ((sect-1)/3)*3;
     int col = ((sect-1)%3)*3;
@@ -298,9 +325,9 @@ bool Sudoku::check_array(QVector<int> vect)
 bool Sudoku::check_grid(QVector<QVector<int>> matrix)
 {
     for(int c = 0; c < 9; c++){
-        QVector<int> c_row = row(matrix, c);
-        QVector<int> c_col = col(matrix, c);
-        QVector<int> c_sect = sect(matrix, c+1);
+        QVector<int> c_row = get_row(matrix, c);
+        QVector<int> c_col = get_col(matrix, c);
+        QVector<int> c_sect = get_sect(matrix, c+1);
 
         if(!check_array(c_row) || !check_array(c_col) || !check_array(c_sect)){
             return false;
@@ -380,11 +407,11 @@ void Sudoku::set_content(QVector<QVector<int>> matrix)
 
     for(int c = 0; c < 9; c++){
 
-        if(!check_array(row(matrix,c)))
+        if(!check_array(get_row(matrix,c)))
             back_row(c,true);
-        if(!check_array(col(matrix,c)))
+        if(!check_array(get_col(matrix,c)))
             back_col(c,true);
-        if(!check_array(sect(matrix,c+1)))
+        if(!check_array(get_sect(matrix,c+1)))
             back_sect(c+1,true);
 
         for(int d = 0; d < 9; d++){
