@@ -31,7 +31,7 @@ private:
     QStack<QVector<QVector<int>>> prev;
     QStack<QVector<QVector<int>>> next;
 
-    bool solve(QVector<QVector<int>> matrix, int row, int col);
+    bool solve(QVector<QVector<int>> matrix);
 
     QLineEdit* get_box(int row, int col);
     int correct_index(int idx);

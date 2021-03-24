@@ -7,6 +7,8 @@
 #include <algorithm> // std::swap
 #include "graphexception.h" //gestore eccezioni
 
+#define TRIM_ENABLED 1 ///< abilito o meno il trim
+
 /**
 	@file graph.h
 
@@ -80,6 +82,9 @@ private:
 		delete[] arch;
 	}
 
+	/**
+		@brief funzione di swap
+	*/
 	void swap(graph<T> &other)
 	{
 		std::swap(this->_name,other._name);
@@ -129,6 +134,74 @@ private:
 		}
 
 		return _len;
+	}
+
+	/**
+		@brief trim degli array di supporto
+
+		metodo di supporto al const_iterator.
+		si occupa di eliminare fisicamente i
+		nodi non attivi ricostruendo gli array
+		di supporto
+	*/
+	void trim()
+	{
+		//controllu sull'operazione da fare
+		if(TRIM_ENABLED == 0 || num_nodes() == 0 || _len == 0)
+			return;
+
+		bool trimmable = false;
+		for(int c = 0; c < _len; c++){
+			if(!_node[c])
+				trimmable = true;
+		}
+
+		if(!trimmable){
+			#ifndef NDEBUG
+			std::cout << "graph non trimmabile" << std::endl;
+			#endif
+
+			return;
+		}
+
+		//nuova dimensione
+		int new_len = num_nodes();
+
+		//puntatori ai vecchi dati
+		bool* node_temp = _node;
+		T* name_temp = _name;
+		bool** arch_temp = _arch;
+		idtype len_temp = _len;
+
+		//inizializzo nuovi array
+		init_vars(new_len);
+
+		//copio i vecchi dati
+		int row = 0;
+		int col = 0;
+		for(int c = 0; c < len_temp; c++){
+			col = 0;
+			if(node_temp[c]){
+				_node[row] = node_temp[c];
+				_name[row] = name_temp[c];
+
+				for(int d = 0; d < len_temp; d++){
+					if(node_temp[d]){
+						_arch[row][col] = arch_temp[c][d];
+						col++;
+					}
+				}
+
+				row++;
+			}
+		}
+
+		//distruggo i vecchi dati
+		destr_vars(name_temp,node_temp,arch_temp,len_temp);
+
+		#ifndef NDEBUG
+		std::cout << "eseguito trim array di supporto" << std::endl;
+		#endif
 	}
 
 public:
@@ -191,6 +264,8 @@ public:
 				_arch[c][d] = other._arch[c][d];
 			}
 		}
+
+		trim();
 
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo tramite copia" << std::endl;
@@ -413,6 +488,8 @@ public:
 			_arch[id][c] = false;
 		}
 
+		trim();
+
 		//se non ci sono più nodi elimino il grafo
 		if(num_nodes() == 0){
 			destr_vars(_name,_node,_arch,_len);
@@ -553,6 +630,8 @@ public:
 			tmp.swap(*this);
 		}
 
+		trim();
+
 		#ifndef NDEBUG
 		std::cout << "graph swapped" << std::endl;
 		#endif
@@ -563,7 +642,6 @@ public:
 	class const_iterator {
 
 		const T *ptr_name;
-		const bool *ptr_node;
 
 	public:
 		typedef std::forward_iterator_tag iterator_category;
@@ -573,15 +651,13 @@ public:
 		typedef const T&                  reference;
 
 	
-		const_iterator() : ptr_name(nullptr), ptr_node(nullptr) {}
+		const_iterator() : ptr_name(nullptr) {}
 		
-		const_iterator(const const_iterator &other) :
-			ptr_name(other.ptr_name), ptr_node(other.ptr_node) {}
+		const_iterator(const const_iterator &other) : ptr_name(other.ptr_name) {}
 
 		const_iterator& operator=(const const_iterator &other)
 		{
 			ptr_name = other.ptr_name;
-			ptr_node = other.ptr_node;
 			return *this;
 		}
 
@@ -603,14 +679,14 @@ public:
 		const_iterator operator++(int)
 		{
 			const_iterator tmp(this);
-			increment_ptr();
+			ptr_name++;
 			return tmp;
 		}
 
 		// Operatore di iterazione pre-incremento
 		const_iterator& operator++()
 		{
-			increment_ptr();
+			ptr_name++;
 			return *this;
 		}
 
@@ -631,50 +707,20 @@ public:
 		friend class graph;
 
 		// Costruttore privato di inizializzazione usato dalla classe container
-		const_iterator(const T* nm, const bool* nd) :
-			ptr_name(nm), ptr_node(nd) {}
-
-		/**
-			@brief logica di incremento del puntatore
-
-			il metodo incrementa il puntatore fino a che
-			non punta al nome di un nodo attivo.
-		*/
-		void increment_ptr()
-		{
-			ptr_name++;
-			ptr_node++;
-		}
+		const_iterator(const T* nm) : ptr_name(nm) {}
 		
 	}; // classe const_iterator
 
 	// Ritorna l'iteratore all'inizio della sequenza dati
 	const_iterator begin() const
 	{
-		T* ptr_name = _name;
-		bool* ptr_node = _node;
-
-		while(*ptr_node == false){
-			ptr_name++;
-			ptr_node++;
-		}
-
-		return const_iterator(ptr_name,ptr_node);
+		return const_iterator(_name);
 	}
 	
 	// Ritorna l'iteratore alla fine della sequenza dati
 	const_iterator end() const
 	{
-		T* ptr_name = _name+_len-1;
-		bool* ptr_node = _node+_len-1;
-
-		while(*ptr_node == false){
-			ptr_node--;
-			ptr_name--;
-		}
-
-
-		return const_iterator(ptr_name+1,ptr_node+1);
+		return const_iterator(_name+_len);
 	}
 };
 

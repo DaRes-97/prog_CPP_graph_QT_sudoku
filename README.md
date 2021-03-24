@@ -45,6 +45,9 @@ supponiamo ora che voglia rimuovere l'elemento *name3*, allora invocherò la fun
 
 - nel momento in cui dovrò aggiungere un altro nodo, invece di aumentare di nuovo la dimensione dell'array, esso occuperà la prima cella disponibile, in questo caso *ID=2*, e il valore *name3* verrà sovrascritto. Ciò avviene grazie al metodo `first_free()`, che ritorna la prima cella disponibile per l'allocazione di un nuovo nodo
 
+- **NOTA:** per consentire il corretto funzionamento degli iteratori, è stata definita una funzione `trim()`, che ha il compito di "trimmare" gli array di supporto, evitando che l'iteratore punti ad un nodo non attivo. In caso `trim()` sia attivo, la rimozione di un nodo comporta anche la ricostruzione dello stesso eliminando i "buchi", ossia i nodi settati a *false*
+  - per impostazione predefinita la funzione è abilitata. Per disattivare settare il valore della costante `TRIM_ENABLED` a 0
+
 ### AGGIUNTA/RIMOZIONE DI ARCHI
 
 gli archi che connettono due nodi sono rappresentati tramite la matrice di adiacenza `_arch[][]`
@@ -124,90 +127,46 @@ un esempio di output:
 
 ### ITERATORI
 
-come da specifica, è stato implementato un *const_iterator* di tipo *forward* che itera sull'insieme dei nomi dei nodi, utilizzando come puntatori
+come da specifica, è stato implementato un *const_iterator* di tipo *forward* che itera sull'insieme dei nomi dei nodi, utilizzando come puntatore:
 
 ​	`const T *ptr_name`: puntatore all'array dei nomi dei nodi
 
-​	`const bool *ptr_node`: puntatore all'array dello stato di attivazione dei nodi
-
-a causa del tipo di implementazione, l'iteratore è in grado di fare un <u>trim</u> sul puntatore di partenza e di arrivo, saltando i nodi settati a *false* e puntando rispettivamente al primo e all'ultimo nodo settato a *true*
-
-```c++
-	const_iterator begin() const
-	{
-		T* ptr_name = _name;
-		bool* ptr_node = _node;
-
-		while(*ptr_node == false){
-			ptr_name++;
-			ptr_node++;
-		}
-
-		return const_iterator(ptr_name,ptr_node);
-	}
-```
-```c++
-	const_iterator end() const
-	{
-		T* ptr_name = _name+_len-1;
-		bool* ptr_node = _node+_len-1;
-
-		while(*ptr_node == false){
-			ptr_node--;
-			ptr_name--;
-		}
-
-
-		return const_iterator(ptr_name+1,ptr_node+1);
-	}
-```
-non è però in grado di attuare una logica di incremento del puntatore che <u>salti i nodi settati a false</u> senza infrangere una di queste due condizioni:
-
-1. <u>Non disponga di informazioni sulle variabili contenute nella classe contenitore</u>, tranne i puntatori con cui è inizializzato l'iteratore (non ha informazioni sulla lunghezza degli array)
-2. <u>Non esegua accessi in memoria non consentiti</u> (superamento dei limiti di lunghezza dell'array per quanto riguarda la lettura delle celle)
-
-pertanto viene attuata una politica di incremento <u>basilare</u>:
-
-```c++
-	void increment_ptr()
-	{
-		ptr_name++;
-		ptr_node++;
-	}
-```
+se la funzione `trim()` non è attiva, l'iteratore non è in grado di attuare una logica di incremento del puntatore che **salti i nodi settati a *false***. 
 
 ## PROGETTO QT - SUDOKU
 
 Il gioco è stato implementato mediante una griglia 9x9 di elementi `QLineEdit`, che costituiscono le caselle del Sudoku, e da una serie di pulsanti che consentono di interagire con le funzionalità del programma.
 
-all'apertura dell'eseguibile viene settata la griglia di gioco e vengono generati 20 valori casuali in altrettante caselle random
+All'apertura dell'eseguibile viene settata la griglia di gioco e vengono generati *n* valori casuali in altrettante caselle random
 
-la schermata iniziale si presenta in questo modo:
+La schermata iniziale si presenta in questo modo:
 
 ![](https://drive.google.com/uc?id=1y_1yc5ZKnLbxDfgA02qzov26c8XiadAP)
 
+- **NOTA:** per variare il numero di celle riempite automaticamente, si deve modificare il valore della costante `LEVEL` nel file *sudoku.cpp*. Il valore è settato a <u>15</u> di default
+
 ------
 
-a questo punto, l'utente può iniziare ad inserire i numeri nelle caselle attive
-
-una volta finito, cliccando sul tasto **SOLVE**, si attiva il sistema di risoluzione
+A questo punto, l'utente può iniziare ad inserire i numeri nelle caselle attive, e una volta finito, cliccando sul tasto **SOLVE**, si attiva il sistema di risoluzione.
 
 - se la griglia è già stata riempita, il sistema controlla la **correttezza dei valori immessi** ( non deve essere presente nessun duplicato)
 - altrimenti, **inserisce i valori in maniera automatica** ove compatibile con il rispetto delle regole del gioco
 
-se la griglia finale risulta **corretta**, appare un messaggio della riuscita dell'operazione e si attivano le frecce **<** e **>** che consentono di ripercorrere i diversi stadi della risoluzione
+Se la griglia finale risulta **corretta**, appare un messaggio della riuscita dell'operazione e si attivano le frecce **<** e **>** che consentono di ripercorrere i diversi stadi della risoluzione
 
 ![](https://drive.google.com/uc?id=1iPhUp_rd6dnk2Oq-mZsNmmVKitUT8uF8)
 
 ![](https://drive.google.com/uc?id=1gj3kUQ5cBmyTAdk145euWexsRBuy7RaA)
 
-------
+
 
 In caso di **errori** nella risoluzione, il sistema si blocca e vengono evidenziati i settori di gioco che presentano duplicati:
 
 ![](https://drive.google.com/uc?id=1p6BoEZhLEGVHVyPVxHOmwgs5kaDUTZ2v)
 
-premendo il tasto **RESET** il gioco ritorna allo stato inziale
+
+
+Premendo il tasto **RESET** il gioco ritorna allo stato inziale.
 
 ------
 
@@ -239,3 +198,4 @@ bool solve(configuration conf){
 }
 ```
 
+- **NOTA:** per alcune configurazioni di gioco, tale metodo potrebbe portare a tempistiche di risoluzione eccessive. Per questioni di semplicità del codice, non sono stati implementati ulteriori controlli in grado di saltare la maggior parte dei rami di *backtrack* inutili, che portano all'aumento del tempo di risoluzione.

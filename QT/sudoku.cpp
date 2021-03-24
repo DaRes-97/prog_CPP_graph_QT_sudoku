@@ -7,6 +7,10 @@
 #include <QRandomGenerator>
 #include <QThread>
 
+//numero di celle riempite
+//casualmente
+#define LEVEL 15
+
 Sudoku::Sudoku(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Sudoku)
@@ -32,20 +36,8 @@ void Sudoku::on_solveButton_clicked()
     //acquisisco i valori delle celle
     QVector<QVector<int>> matrix = get_content();
 
-    // trovo la prima cella libera
-    int row = 0;
-    int col = 0;
-    bool found = false;
-    for(int c = 0; c < 9 && !found; c++)
-        for(int d = 0; d < 9 && !found; d++)
-            if(matrix[c][d] == 0){
-                row = c;
-                col = d;
-                found = true;
-            }
-
     //risolvo il sudoku
-    bool res = solve(matrix,row,col);
+    bool res = solve(matrix);
     next.push(matrix);
     while(!next.isEmpty())
         prev.push(next.pop());
@@ -92,7 +84,7 @@ void Sudoku::on_resetButton_clicked()
     ui->nextButton->setEnabled(false);
 
     //setto il nuovo stato di partenza
-    QVector<QVector<int>> matrix = init_content(10);
+    QVector<QVector<int>> matrix = init_content(LEVEL);
     set_content(matrix);
 }
 
@@ -123,45 +115,46 @@ void Sudoku::on_nextButton_clicked()
 //risolve il sudoku con la tecnica del backtracking
 //salvando gli stati intermedi
 
-bool Sudoku::solve(QVector<QVector<int>> matrix, int row, int col)
+bool Sudoku::solve(QVector<QVector<int>> matrix)
 {
     //nessuna scelta possibile
     if(is_full(matrix)){
         return check_grid(matrix);
     }
 
+    QVector<QVector<int>> new_matrix = matrix;
+
+    //trovo prossima cella libera
+    int new_row = 0;
+    int new_col = 0;
+    bool found = false;
+    for(int c = 0; c < 9 && !found; c++){
+        for(int d = 0; d < 9 && !found; d++){
+            if(new_matrix[c][d] == 0){
+                new_row = c;
+                new_col = d;
+                found = true;
+            }
+        }
+    }
+
     for(int c = 1; c <= 9; c++){
 
         //provo scelta c
-        QVector<QVector<int>> new_matrix = matrix;
-        new_matrix[row][col] = c;
+        new_matrix[new_row][new_col] = c;
 
         //scelta c è safe
         if(check_grid(new_matrix)){
 
-            //trovo prossima cella libera
-            int new_row = 0;
-            int new_col = 0;
-            bool found = false;
-            for(int c = 0; c < 9 && !found; c++){
-                for(int d = 0; d < 9 && !found; d++){
-                    if(new_matrix[c][d] == 0){
-                        new_row = c;
-                        new_col = d;
-                        found = true;
-                    }
-                }
-            }
-
             //la matrice è risolvibile con la scelta c
-            if(solve(new_matrix,new_row,new_col)){
+            if(solve(new_matrix)){
                 next.push(new_matrix);
                 return true;
             }
         }
 
         //la matrice non è risolvibile con la scelta c
-        new_matrix[row][col] = 0;
+        new_matrix[new_row][new_col] = 0;
     }
 
     //non ci sono soluzioni
@@ -200,7 +193,8 @@ QVector<int> Sudoku::get_col(QVector<QVector<int>> matrix, int col)
 }
 
 //colora la riga selezionata di rosso
-void Sudoku::back_row(int row, bool isred){
+void Sudoku::back_row(int row, bool isred)
+{
     QString style;
 
     if(isred){
@@ -374,7 +368,8 @@ QVector<QVector<int>> Sudoku::init_content(int num)
 //il metodo acquisisce il contenuto
 //delle celle del sudoku in una matrice
 //9x9
-QVector<QVector<int>> Sudoku::get_content(){
+QVector<QVector<int>> Sudoku::get_content()
+{
     QVector<QVector<int>> content;
 
     for(int c = 0; c < 9; c++){
