@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStack>
+#include "ui_sudoku.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Sudoku; }
@@ -32,6 +33,7 @@ private:
 
     bool solve(QVector<QVector<int>> matrix, int row, int col);
 
+    QLineEdit* get_box(int row, int col);
     int correct_index(int idx);
 
     QVector<int> get_col(QVector<QVector<int>> matrix, int col);
