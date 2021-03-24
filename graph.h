@@ -7,8 +7,6 @@
 #include <algorithm> // std::swap
 #include "graphexception.h" //gestore eccezioni
 
-#define TRIM_ENABLED 1 ///< abilito o meno il trim
-
 /**
 	@file graph.h
 
@@ -29,14 +27,12 @@ private:
 
 	idtype _len; ///< dimensione degli array
 	T* _name; ///< array nomi dei nodi
-	bool* _node; ///< array identificativi nodi
 	bool** _arch; ///< matrice di adiacenza
 
 	/**
 		@brief inizializzatore delle variabili
 
-		la funzione inizializza gli array di
-		identificazione dei nodi e la matrice
+		la funzione inizializza la matrice
 		di adiacenza con valori false e crea
 		l'array dei nomi dei nodi
 
@@ -44,15 +40,20 @@ private:
 	*/
 	inline void init_vars(idtype len)
 	{
+		if(len == 0){
+			_name = nullptr;
+			_arch = nullptr;
+			_len = 0;
+
+			return;
+		}
+
 		_name = new T[len];
-		_node = new bool[len];
 		_arch = new bool*[len];
 		_len = len;
 
 		for(idtype c = 0; c < len; c++){
-			_node[c] = false;
 			_arch[c] = new bool[len];
-
 			for(idtype d = 0; d < len; d++){
 				_arch[c][d] = false;
 			}
@@ -67,13 +68,11 @@ private:
 		in ingresso
 
 		@param name array nomi dei nodi
-		@param node array identificativi nodi
 		@param arch matrice di adiacenza
 		@param len lunghezza array e matrice
 	*/
-	inline void destr_vars(T* name, bool* node, bool** arch, idtype len)
+	inline void destr_vars(T* name, bool** arch, idtype len)
 	{
-		delete[] node;
 		delete[] name;
 
 		for(idtype c = 0; c < len; c++){
@@ -88,33 +87,8 @@ private:
 	void swap(graph<T> &other)
 	{
 		std::swap(this->_name,other._name);
-		std::swap(this->_node,other._node);
 		std::swap(this->_arch,other._arch);
 		std::swap(this->_len,other._len);
-	}
-
-	/**
-		@brief primo elemento libero
-
-		la funzione ritorna il primo index libero
-		all'interno dell'array dei nodi. Questa 
-		funzione automatizza la gestione degli
-		array per quanto riguarda l'aggiunta
-		dei nodi
-
-		@return idx primo indice disponibile
-	*/
-	idtype first_free()
-	{
-		idtype idx = 0;
-
-		while(idx < _len){
-			if(!_node[idx])
-				break;
-			idx++;
-		}
-
-		return idx;
 	}
 
 	/**
@@ -129,79 +103,11 @@ private:
 	const idtype indexof(const T name) const
 	{
 		for(int c = 0; c < _len; c++){
-			if(_node[c] && _name[c] == name)
+			if(_name[c] == name)
 				return c;
 		}
 
 		return _len;
-	}
-
-	/**
-		@brief trim degli array di supporto
-
-		metodo di supporto al const_iterator.
-		si occupa di eliminare fisicamente i
-		nodi non attivi ricostruendo gli array
-		di supporto
-	*/
-	void trim()
-	{
-		//controllu sull'operazione da fare
-		if(TRIM_ENABLED == 0 || num_nodes() == 0 || _len == 0)
-			return;
-
-		bool trimmable = false;
-		for(int c = 0; c < _len; c++){
-			if(!_node[c])
-				trimmable = true;
-		}
-
-		if(!trimmable){
-			#ifndef NDEBUG
-			std::cout << "graph non trimmabile" << std::endl;
-			#endif
-
-			return;
-		}
-
-		//nuova dimensione
-		int new_len = num_nodes();
-
-		//puntatori ai vecchi dati
-		bool* node_temp = _node;
-		T* name_temp = _name;
-		bool** arch_temp = _arch;
-		idtype len_temp = _len;
-
-		//inizializzo nuovi array
-		init_vars(new_len);
-
-		//copio i vecchi dati
-		int row = 0;
-		int col = 0;
-		for(int c = 0; c < len_temp; c++){
-			col = 0;
-			if(node_temp[c]){
-				_node[row] = node_temp[c];
-				_name[row] = name_temp[c];
-
-				for(int d = 0; d < len_temp; d++){
-					if(node_temp[d]){
-						_arch[row][col] = arch_temp[c][d];
-						col++;
-					}
-				}
-
-				row++;
-			}
-		}
-
-		//distruggo i vecchi dati
-		destr_vars(name_temp,node_temp,arch_temp,len_temp);
-
-		#ifndef NDEBUG
-		std::cout << "eseguito trim array di supporto" << std::endl;
-		#endif
 	}
 
 public:
@@ -214,10 +120,9 @@ public:
 
 		@post _len == 0
 		@post _name == nullptr
-		@post _node == nullptr
 		@post _arch == nullptr
 	*/
-	graph() : _len(0), _name(nullptr), _node(nullptr), _arch(nullptr)
+	graph() : _len(0), _name(nullptr), _arch(nullptr)
 	{
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo vuoto" << std::endl;
@@ -234,12 +139,10 @@ public:
 
 		@post _len == id+1
 	*/
-	graph(T name) : _len(0), _name(nullptr), _node(nullptr), _arch(nullptr)
+	graph(T name) : _len(0), _name(nullptr), _arch(nullptr)
 	{
-		idtype id = first_free();
-		init_vars(id+1);
-		_name[id] = name;
-		_node[id] = true;
+		init_vars(1);
+		_name[0] = name;
 
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo 1 elemento" << std::endl;
@@ -253,19 +156,16 @@ public:
 
 		@param other graph da copiare
 	*/
-	graph(const graph<T> &other) : _len(0), _name(nullptr), _node(nullptr), _arch(nullptr)
+	graph(const graph<T> &other) : _len(0), _name(nullptr), _arch(nullptr)
 	{
 		init_vars(other._len);
 
 		for(idtype c = 0; c < _len; c++){
-			_node[c] = other._node[c];
 			_name[c] = other._name[c];
 			for(idtype d = 0; d < _len; d++){
 				_arch[c][d] = other._arch[c][d];
 			}
 		}
-
-		trim();
 
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo tramite copia" << std::endl;
@@ -277,9 +177,8 @@ public:
 	*/
 	~graph()
 	{
-		destr_vars(_name,_node,_arch,_len);
+		destr_vars(_name, _arch, _len);
 		_name = nullptr;
-		_node = nullptr;
 		_arch = nullptr;
 		_len = 0;
 
@@ -304,10 +203,8 @@ public:
 		if(id == _len){
 			return false;
 		}
-		else{
-			bool res = _node[id];
-			return res;
-		}
+
+		return true;
 	}
 
 	/**
@@ -352,10 +249,8 @@ public:
 		}
 
 		for(idtype c = 0; c < _len; c++){
-			if(_node[c]){
-				if(!other.exists(_name[c])) //stessi nodi
-					return false;
-			}
+			if(!other.exists(_name[c])) //stessi nodi
+				return false;
 
 			for(idtype d = 0; d < _len; d++){
 				if(_arch[c][d]){
@@ -374,10 +269,9 @@ public:
 		la funzione si occupa di aggiungere un nodo
 		al grafo. se il grafo non è ancora stato 
 		inizializzato lo inizializza ed aggiunge il
-		nodo, se il nodo è già stato inizializzato
-		lo setta a true, altrimenti crea un grafo
-		ex novo della dimensione corretta e copia
-		i dati del vecchio grafo
+		nodo, se il grafo è già stato inizializzato
+		crea un grafo ex novo della dimensione
+ 		corretta e copia i dati del vecchio grafo
 
 		@param name nome del nuovo nodo
 	*/
@@ -386,36 +280,22 @@ public:
 		if(exists(name)) //nodo già inserito
 			throw logicexception("nodo gia inserito!", 4);
 
-		idtype id = first_free();
-		#ifndef NDEBUG
-		std::cout << "ID LIBERO:" << id << std::endl;
-		#endif
+		if(_len == 0){ //graph vuoto
 
-		if(_node == nullptr){ //graph vuoto
+			init_vars(1); // inizializzo la classe
+			_name[0] = name;
 
-			init_vars(id+1); // inizializzo la classe
-			_node[id] = true;
-			_name[id] = name;
+		} else { //graph già inizializzato
 
-		} else if (id < _len) { //id già inizializzato
-
-			_node[id] = true;
-			_name[id] = name;
-
-		} else { //id non ancora inizializzato
-
-			bool* node_temp = _node;
 			T* name_temp = _name;
 			bool** arch_temp = _arch;
 			idtype len_temp = _len;
 
-			init_vars(id+1); // reinizializzo la classe
-			_node[id] = true;
-			_name[id] = name;
+			init_vars(len_temp+1); // reinizializzo la classe
+			_name[_len-1] = name;
 
 			//copio i vecchi dati sul nuovo grafo
 			for(idtype c = 0; c < len_temp; c++){
-				_node[c] = node_temp[c];
 				_name[c] = name_temp[c];
 				for(idtype d = 0; d < len_temp; d++){
 					_arch[c][d] = arch_temp[c][d];
@@ -423,11 +303,7 @@ public:
 			}
 
 			//distruggo i vecchi dati
-			destr_vars(name_temp,node_temp,arch_temp,len_temp);
-
-			#ifndef NDEBUG
-			std::cout << "copiati dati in nuovo grafo" << std::endl;
-			#endif
+			destr_vars(name_temp,arch_temp,len_temp);
 		}
 
 		#ifndef NDEBUG
@@ -473,31 +349,46 @@ public:
 	*/
 	void remove(T name)
 	{
-		if(_node == nullptr) //grafo vuoto
+		if(_len == 0) //grafo vuoto
 			throw logicexception("grafo vuoto!", 1);
 		if(!exists(name)) // nodo non presente
 			throw logicexception("nodo non presente!", 3);
 
+		//indice nodo da eliminare
 		idtype id = indexof(name);
-		// elimino il nodo
-		_node[id] = false;
-		
-		// elimino gli archi associati
-		for(idtype c = 0; c < _len; c++){
-			_arch[c][id] = false;
-			_arch[id][c] = false;
+
+		//puntatori ai vecchi dati
+		T* name_temp = _name;
+		bool** arch_temp = _arch;
+		idtype len_temp = _len;
+
+
+		//inizializzo nuovi array
+		init_vars(len_temp-1);
+
+		if(_len != 0){
+			//copio i vecchi dati
+			int row = 0;
+			int col = 0;
+			for(int c = 0; c < len_temp; c++){
+				col = 0;
+				if(c != id){
+					_name[row] = name_temp[c];
+
+					for(int d = 0; d < len_temp; d++){
+						if(d != id){
+							_arch[row][col] = arch_temp[c][d];
+							col++;
+						}
+					}
+
+					row++;
+				}
+			}
 		}
 
-		trim();
-
-		//se non ci sono più nodi elimino il grafo
-		if(num_nodes() == 0){
-			destr_vars(_name,_node,_arch,_len);
-			_name = nullptr;
-			_node = nullptr;
-			_arch = nullptr;
-			_len = 0;
-		}
+		//distruggo i vecchi dati
+		destr_vars(name_temp,arch_temp,len_temp);
 
 		#ifndef NDEBUG
 		std::cout << "nodo eliminato correttamente" << std::endl;
@@ -555,9 +446,9 @@ public:
 	const idtype num_nodes() const
 	{
 		idtype count = 0;
+
 		for(idtype c = 0; c < _len; c++){
-			if(_node[c])
-				count++;
+			count++;
 		}
 
 		return count;
@@ -595,8 +486,7 @@ public:
 	{
 		std::cout << "<name,id>: ";
 		for(idtype c = 0; c < _len; c++){
-			if(_node[c])
-				std::cout << "<" << _name[c] << "," << c << ">, ";
+			std::cout << "<" << _name[c] << "," << c << ">, ";
 		}
 		std::cout << std::endl;
 
@@ -629,8 +519,6 @@ public:
 			graph tmp(other);
 			tmp.swap(*this);
 		}
-
-		trim();
 
 		#ifndef NDEBUG
 		std::cout << "graph swapped" << std::endl;

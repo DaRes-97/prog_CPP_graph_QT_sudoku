@@ -82,10 +82,6 @@ void Sudoku::on_resetButton_clicked()
     ui->solveButton->setEnabled(true);
     ui->prevButton->setEnabled(false);
     ui->nextButton->setEnabled(false);
-
-    //setto il nuovo stato di partenza
-    QVector<QVector<int>> matrix = init_content(LEVEL);
-    set_content(matrix);
 }
 
 //torna indietro di un passo nella risoluzione
@@ -331,40 +327,6 @@ bool Sudoku::check_grid(QVector<QVector<int>> matrix)
     return true;
 }
 
-//crea una matrice di valori casuali in altrettante
-//posizioni casuali
-QVector<QVector<int>> Sudoku::init_content(int num)
-{
-    QVector<QVector<int>> content;
-
-    for(int c = 0; c < 9; c++){
-        QVector<int> vect;
-        for(int d = 0; d < 9; d++){
-            vect.append(0);
-        }
-        content.append(vect);
-    }
-
-    int row = 0;
-    int col = 0;
-
-    for(int c = 1; c <= num; c++){
-        do{
-            row = std::rand() % 9;
-            col = std::rand() % 9;
-        }while(content[row][col] != 0);
-
-        do{
-            int val = 1 + ( std::rand() % 9);
-
-            content[row][col] = val;
-
-        }while(!check_grid(content));
-    }
-
-    return content;
-}
-
 //il metodo acquisisce il contenuto
 //delle celle del sudoku in una matrice
 //9x9
@@ -406,8 +368,6 @@ void Sudoku::set_content(QVector<QVector<int>> matrix)
                 int val = matrix[c][d];
                 QString str = (val == 0) ? "" : QString::number(val);
                 le->setText(str);
-                if(val != 0)
-                le->setEnabled(false);
         }
     }
 

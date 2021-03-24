@@ -46,8 +46,8 @@ private:
     bool is_full(QVector<QVector<int>> matrix);
     bool check_array(QVector<int> arr);
     bool check_grid(QVector<QVector<int>> matrix);
+
     QVector<QVector<int>> get_content();
-    QVector<QVector<int>> init_content(int n);
     void set_content(QVector<QVector<int>> matrix);
 };
 #endif // SUDOKU_H

@@ -57,13 +57,9 @@ void test_add_remove(const U arr[], unsigned int length)
 		std::cout << e.what() << std::endl;
 	}
 
-	//rimpiazzo nodo (o riaggiungo se TRIM abilitato)
 	m1.add(arr[9]);
 
-	assert(m1.len() == len);	//il nuovo nodo va al posto di quello
-								//rimosso precedentemente (len non
-								//aumenta), o viene aggiunto normal
-								//mente se TRIM abilitato
+	assert(m1.len() == len);
 
 	//aggiungo arco correttamente
 	m1.add(arr[2],arr[9]);
