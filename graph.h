@@ -26,7 +26,7 @@ private:
 	typedef unsigned int idtype;
 
 	idtype _len; ///< dimensione degli array
-	T* _name; ///< array nomi dei nodi
+	T* _node; ///< array degli identificativi dei nodi
 	bool** _arch; ///< matrice di adiacenza
 
 	/**
@@ -34,21 +34,21 @@ private:
 
 		la funzione inizializza la matrice
 		di adiacenza con valori false e crea
-		l'array dei nomi dei nodi
+		l'array degli identificativi dei nodi
 
 		@param len lunghezza array
 	*/
 	inline void init_vars(idtype len)
 	{
 		if(len == 0){
-			_name = nullptr;
+			_node = nullptr;
 			_arch = nullptr;
 			_len = 0;
 
 			return;
 		}
 
-		_name = new T[len];
+		_node = new T[len];
 		_arch = new bool*[len];
 		_len = len;
 
@@ -67,13 +67,13 @@ private:
 		effettivamente le variabili inserite
 		in ingresso
 
-		@param name array nomi dei nodi
+		@param node array identificativi dei nodi
 		@param arch matrice di adiacenza
 		@param len lunghezza array e matrice
 	*/
-	inline void destr_vars(T* name, bool** arch, idtype len)
+	inline void destr_vars(T* node, bool** arch, idtype len)
 	{
-		delete[] name;
+		delete[] node;
 
 		for(idtype c = 0; c < len; c++){
 			delete[] arch[c];
@@ -86,7 +86,7 @@ private:
 	*/
 	void swap(graph<T> &other)
 	{
-		std::swap(this->_name,other._name);
+		std::swap(this->_node,other._node);
 		std::swap(this->_arch,other._arch);
 		std::swap(this->_len,other._len);
 	}
@@ -94,16 +94,16 @@ private:
 	/**
 		@brief indice del nodo
 
-		dato il nome del nodo ritorna il suo
-		id
+		dato l'identificativo del nodo ritorna
+		la sua posizione nell'array
 
-		@param name nome del nodo
-		@return c indice (ID) del nodo
+		@param node identificativo del nodo
+		@return c indice (IDX) del nodo
 	*/
-	const idtype indexof(const T name) const
+	const idtype indexof(const T node) const
 	{
 		for(int c = 0; c < _len; c++){
-			if(_name[c] == name)
+			if(_node[c] == node)
 				return c;
 		}
 
@@ -119,10 +119,10 @@ public:
 		graph ad un valore nullo
 
 		@post _len == 0
-		@post _name == nullptr
+		@post _node == nullptr
 		@post _arch == nullptr
 	*/
-	graph() : _len(0), _name(nullptr), _arch(nullptr)
+	graph() : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo vuoto" << std::endl;
@@ -135,14 +135,14 @@ public:
 		costruttore che inizializza la classe
 		graph con un solo nodo
 
-		@param name nome del nodo
+		@param node nome del nodo
 
-		@post _len == id+1
+		@post _len == 1
 	*/
-	graph(T name) : _len(0), _name(nullptr), _arch(nullptr)
+	graph(T node) : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		init_vars(1);
-		_name[0] = name;
+		_node[0] = node;
 
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo 1 elemento" << std::endl;
@@ -156,12 +156,12 @@ public:
 
 		@param other graph da copiare
 	*/
-	graph(const graph<T> &other) : _len(0), _name(nullptr), _arch(nullptr)
+	graph(const graph<T> &other) : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		init_vars(other._len);
 
 		for(idtype c = 0; c < _len; c++){
-			_name[c] = other._name[c];
+			_node[c] = other._node[c];
 			for(idtype d = 0; d < _len; d++){
 				_arch[c][d] = other._arch[c][d];
 			}
@@ -177,8 +177,8 @@ public:
 	*/
 	~graph()
 	{
-		destr_vars(_name, _arch, _len);
-		_name = nullptr;
+		destr_vars(_node, _arch, _len);
+		_node = nullptr;
 		_arch = nullptr;
 		_len = 0;
 
@@ -193,14 +193,14 @@ public:
 		la funzione verifica l'esistenza di un
 		determinato nodo all'interno del grafo
 
-		@param name nome del nodo
+		@param node identificativo del nodo
 		@return res risultato della verifica
 	*/
-	const bool exists(const T name) const
+	const bool exists(const T node) const
 	{
-		int id = indexof(name);
+		int idx = indexof(node);
 
-		if(id == _len){
+		if(idx == _len){
 			return false;
 		}
 
@@ -213,17 +213,17 @@ public:
 		la funzione verifica l'esistenza di un
 		determinato arco all'interno del grafo
 
-		@param name1 nome nodo di partenza
-		@param name2 nome nodo di arrivo
+		@param src identificativo nodo di partenza
+		@param dst identificativo nodo di arrivo
 		@return res risultato della verifica
 	*/
-	const bool has_edge(T name1, T name2) const
+	const bool has_edge(T src, T dst) const
 	{
-		if(exists(name1) && exists(name2)){
-			idtype id1 = indexof(name1);
-			idtype id2 = indexof(name2);
+		if(exists(src) && exists(dst)){
+			idtype idx1 = indexof(src);
+			idtype idx2 = indexof(dst);
 
-			bool res = _arch[id1][id2];
+			bool res = _arch[idx1][idx2];
 			return res;
 		} else{
 			return false;
@@ -249,12 +249,12 @@ public:
 		}
 
 		for(idtype c = 0; c < _len; c++){
-			if(!other.exists(_name[c])) //stessi nodi
+			if(!other.exists(_node[c])) //stessi nodi
 				return false;
 
 			for(idtype d = 0; d < _len; d++){
 				if(_arch[c][d]){
-					if(!other.has_edge(_name[c],_name[d])) // stessi archi
+					if(!other.has_edge(_node[c],_node[d])) // stessi archi
 						return false;
 				}
 			}
@@ -273,37 +273,37 @@ public:
 		crea un grafo ex novo della dimensione
  		corretta e copia i dati del vecchio grafo
 
-		@param name nome del nuovo nodo
+		@param node nome del nuovo nodo
 	*/
-	void add(T name)
+	void add(T node)
 	{
-		if(exists(name)) //nodo già inserito
+		if(exists(node)) //nodo già inserito
 			throw logicexception("nodo gia inserito!", 4);
 
 		if(_len == 0){ //graph vuoto
 
 			init_vars(1); // inizializzo la classe
-			_name[0] = name;
+			_node[0] = node;
 
 		} else { //graph già inizializzato
 
-			T* name_temp = _name;
+			T* node_temp = _node;
 			bool** arch_temp = _arch;
 			idtype len_temp = _len;
 
 			init_vars(len_temp+1); // reinizializzo la classe
-			_name[_len-1] = name;
+			_node[_len-1] = node;
 
 			//copio i vecchi dati sul nuovo grafo
 			for(idtype c = 0; c < len_temp; c++){
-				_name[c] = name_temp[c];
+				_node[c] = node_temp[c];
 				for(idtype d = 0; d < len_temp; d++){
 					_arch[c][d] = arch_temp[c][d];
 				}
 			}
 
 			//distruggo i vecchi dati
-			destr_vars(name_temp,arch_temp,len_temp);
+			destr_vars(node_temp,arch_temp,len_temp);
 		}
 
 		#ifndef NDEBUG
@@ -317,21 +317,21 @@ public:
 		la funzione crea un arco orientato tra i due
 		nodi selezionati in ingresso
 
-		@param name1 nome nodo di partenza
-		@param name2 nome nodo di arrivo
+		@param src identificativo nodo di partenza
+		@param dst identificativo nodo di arrivo
 	*/
-	void add(T name1, T name2)
+	void add(T src, T dst)
 	{
-		if(!exists(name1) || !exists(name2))
+		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
 
-		idtype id1 = indexof(name1);
-		idtype id2 = indexof(name2);
+		idtype idx1 = indexof(src);
+		idtype idx2 = indexof(dst);
 
-		if(_arch[id1][id2])
+		if(_arch[idx1][idx2])
 			throw logicexception("arco gia inserito!", 4);
 
-		_arch[id1][id2] = true;
+		_arch[idx1][idx2] = true;
 
 		#ifndef NDEBUG
 		std::cout << "arco aggiunto correttamente" << std::endl;
@@ -345,20 +345,20 @@ public:
 		nodo e degli archi associati, previo controllo
 		della validità del nodo inserito come parametro
 
-		@param name nome del nodo da rimuovere
+		@param node identificativo del nodo da rimuovere
 	*/
-	void remove(T name)
+	void remove(T node)
 	{
 		if(_len == 0) //grafo vuoto
 			throw logicexception("grafo vuoto!", 1);
-		if(!exists(name)) // nodo non presente
+		if(!exists(node)) // nodo non presente
 			throw logicexception("nodo non presente!", 3);
 
 		//indice nodo da eliminare
-		idtype id = indexof(name);
+		idtype idx = indexof(node);
 
 		//puntatori ai vecchi dati
-		T* name_temp = _name;
+		T* node_temp = _node;
 		bool** arch_temp = _arch;
 		idtype len_temp = _len;
 
@@ -372,11 +372,11 @@ public:
 			int col = 0;
 			for(int c = 0; c < len_temp; c++){
 				col = 0;
-				if(c != id){
-					_name[row] = name_temp[c];
+				if(c != idx){
+					_node[row] = node_temp[c];
 
 					for(int d = 0; d < len_temp; d++){
-						if(d != id){
+						if(d != idx){
 							_arch[row][col] = arch_temp[c][d];
 							col++;
 						}
@@ -388,7 +388,7 @@ public:
 		}
 
 		//distruggo i vecchi dati
-		destr_vars(name_temp,arch_temp,len_temp);
+		destr_vars(node_temp,arch_temp,len_temp);
 
 		#ifndef NDEBUG
 		std::cout << "nodo eliminato correttamente" << std::endl;
@@ -401,21 +401,21 @@ public:
 		la funzione rimuove l'arco orientato tra i due
 		nodi selezionati in ingresso
 
-		@param name1 nome nodo di partenza
-		@param name2 nome nodo di arrivo
+		@param src identificativo nodo di partenza
+		@param dst identificativo nodo di arrivo
 	*/
-	void remove(T name1, T name2)
+	void remove(T src, T dst)
 	{
-		if(!exists(name1) || !exists(name2))
+		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
 
-		idtype id1 = indexof(name1);
-		idtype id2 = indexof(name2);
+		idtype idx1 = indexof(src);
+		idtype idx2 = indexof(dst);
 
-		if(!_arch[id1][id2])
+		if(!_arch[idx1][idx2])
 			throw logicexception("arco non presente!", 3);
 
-		_arch[id1][id2] = false;
+		_arch[idx1][idx2] = false;
 
 		#ifndef NDEBUG
 		std::cout << "arco eliminato correttamente" << std::endl;
@@ -484,9 +484,9 @@ public:
 	*/
 	void print()
 	{
-		std::cout << "<name,id>: ";
+		std::cout << "<node,idx>: ";
 		for(idtype c = 0; c < _len; c++){
-			std::cout << "<" << _name[c] << "," << c << ">, ";
+			std::cout << "<" << _node[c] << "," << c << ">, ";
 		}
 		std::cout << std::endl;
 
@@ -529,7 +529,7 @@ public:
 
 	class const_iterator {
 
-		const T *ptr_name;
+		const T *ptr_node;
 
 	public:
 		typedef std::forward_iterator_tag iterator_category;
@@ -539,13 +539,13 @@ public:
 		typedef const T&                  reference;
 
 	
-		const_iterator() : ptr_name(nullptr) {}
+		const_iterator() : ptr_node(nullptr) {}
 		
-		const_iterator(const const_iterator &other) : ptr_name(other.ptr_name) {}
+		const_iterator(const const_iterator &other) : ptr_node(other.ptr_node) {}
 
 		const_iterator& operator=(const const_iterator &other)
 		{
-			ptr_name = other.ptr_name;
+			ptr_node = other.ptr_node;
 			return *this;
 		}
 
@@ -554,40 +554,40 @@ public:
 		// Ritorna il dato riferito dall'iteratore (dereferenziamento)
 		reference operator*() const
 		{
-			return *ptr_name;
+			return *ptr_node;
 		}
 
 		// Ritorna il puntatore al dato riferito dall'iteratore
 		pointer operator->() const
 		{
-			return ptr_name;
+			return ptr_node;
 		}
 		
 		// Operatore di iterazione post-incremento
 		const_iterator operator++(int)
 		{
 			const_iterator tmp(this);
-			ptr_name++;
+			ptr_node++;
 			return tmp;
 		}
 
 		// Operatore di iterazione pre-incremento
 		const_iterator& operator++()
 		{
-			ptr_name++;
+			ptr_node++;
 			return *this;
 		}
 
 		// Uguaglianza
 		bool operator==(const const_iterator &other) const
 		{
-			return (ptr_name == other.ptr_name);
+			return (ptr_node == other.ptr_node);
 		}
 		
 		// Diversita'
 		bool operator!=(const const_iterator &other) const
 		{
-			return (ptr_name != other.ptr_name);
+			return (ptr_node != other.ptr_node);
 		}
 
 	private:
@@ -595,20 +595,20 @@ public:
 		friend class graph;
 
 		// Costruttore privato di inizializzazione usato dalla classe container
-		const_iterator(const T* nm) : ptr_name(nm) {}
+		const_iterator(const T* nm) : ptr_node(nm) {}
 		
 	}; // classe const_iterator
 
 	// Ritorna l'iteratore all'inizio della sequenza dati
 	const_iterator begin() const
 	{
-		return const_iterator(_name);
+		return const_iterator(_node);
 	}
 	
 	// Ritorna l'iteratore alla fine della sequenza dati
 	const_iterator end() const
 	{
-		return const_iterator(_name+_len);
+		return const_iterator(_node+_len);
 	}
 };
 

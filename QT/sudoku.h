@@ -28,26 +28,35 @@ private slots:
 
 private:
     Ui::Sudoku *ui;
-    QStack<QVector<QVector<int>>> prev;
-    QStack<QVector<QVector<int>>> next;
 
-    bool solve(QVector<QVector<int>> matrix);
+    //salvataggio stadi di risoluzione
+    QStack<QVector<QVector<int>>> prev_state;
+    QStack<QVector<QVector<int>>> next_state;
+
+    bool solve(QVector<QVector<int>> board);
+
+    //BOX = casella
+    //COL = colonna
+    //ROW = riga
+    //SECT = settore 3x3
 
     QLineEdit* get_box(int row, int col);
-    int correct_index(int idx);
+    int correct_box_index(int idx);
 
-    QVector<int> get_col(QVector<QVector<int>> matrix, int col);
-    void back_col(int col, bool isred);
-    QVector<int> get_row(QVector<QVector<int>> matrix, int row);
-    void back_row(int row, bool isred);
-    QVector<int> get_sect(QVector<QVector<int>> matrix, int sect);
-    void back_sect(int sect, bool isred);
+    QVector<int> get_col(QVector<QVector<int>> board, int col);
+    void set_background_col(int col, bool isred);
 
-    bool is_full(QVector<QVector<int>> matrix);
+    QVector<int> get_row(QVector<QVector<int>> board, int row);
+    void set_background_row(int row, bool isred);
+
+    QVector<int> get_sect(QVector<QVector<int>> board, int sect);
+    void set_background_sect(int sect, bool isred);
+
+    bool is_board_full(QVector<QVector<int>> board);
     bool check_array(QVector<int> arr);
-    bool check_grid(QVector<QVector<int>> matrix);
+    bool check_board(QVector<QVector<int>> board);
 
     QVector<QVector<int>> get_content();
-    void set_content(QVector<QVector<int>> matrix);
+    void set_content(QVector<QVector<int>> board);
 };
 #endif // SUDOKU_H
