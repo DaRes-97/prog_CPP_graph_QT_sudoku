@@ -16,6 +16,14 @@ class logicexception : public std::logic_error
 	int _value;
 public:
 
+	/*
+		ERROR CODES:
+
+			1 = grafo vuoto
+			2 = uno dei nodi specificati non esiste
+			3 = nodo/arco non esistente
+			4 = nodo/arco già inserito
+	*/
 	logicexception(const std::string &message, int value) : std::logic_error(message), _value(value) {}
 
 	int get_value(void) const

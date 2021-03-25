@@ -28,6 +28,8 @@ Sudoku::Sudoku(QWidget *parent)
 
 Sudoku::~Sudoku()
 {
+    prev_state.clear();
+    next_state.clear();
     delete ui;
 }
 

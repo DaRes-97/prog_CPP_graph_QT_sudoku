@@ -3,8 +3,11 @@
 #include "graph.h"
 #include "customdata.h"
 
+#define LENGTH 10
+#define LENGTH_2 5
+
 template<typename U>
-void test_constructors(const U arr[], unsigned int length)
+void test_constructors(const U arr[])
 {
 	//costruttore vuoto
 	graph<U> m1;
@@ -20,7 +23,7 @@ void test_constructors(const U arr[], unsigned int length)
 }
 
 template<typename U>
-void test_add_remove(const U arr[], unsigned int length)
+void test_add_remove(const U arr[])
 {
 	graph<U> m1;
 	unsigned int len;
@@ -111,7 +114,7 @@ void test_add_remove(const U arr[], unsigned int length)
 }
 
 template<typename U>
-void test_equals(const U arr[], unsigned int length)
+void test_equals(const U arr[])
 {
 	graph<U> g1;
 	g1.add(arr[0]);
@@ -149,7 +152,7 @@ void test_equals(const U arr[], unsigned int length)
 }
 
 template<typename U>
-void test_utils(const U arr[], unsigned int length)
+void test_utils(const U arr[])
 {
 	//grafo vuoto
 	graph<U> g1;
@@ -194,7 +197,7 @@ void test_utils(const U arr[], unsigned int length)
 }
 
 template<typename U>
-void test_operators(const U arr[], unsigned int length)
+void test_operators(const U arr[])
 {
 	//grafo vuoto
 	graph<U> g1;
@@ -222,27 +225,32 @@ void test_operators(const U arr[], unsigned int length)
 }
 
 template<typename U>
-void test_iterators(const U arr[], unsigned int length,
-					const U arr_final[], unsigned int length_final)
+void test_iterators(const U arr[], const U arr_final[])
 {
 	graph<U> g1;
 
-	for(unsigned int c = 0; c < length; c++){
+	//riempio il grafo
+	for(unsigned int c = 0; c < LENGTH; c++){
 		try{
 			g1.add(arr[c]);
 		} catch (logicexception e) {}
 	}
 
+	//rimuovo alcuni nodi
 	g1.remove(arr[0]);
 	g1.remove(arr[4]);
 	g1.remove(arr[9]);
 
+	//test iteratore. gli elementi ritornati dall
+	//iteratore devono essere gli stessi del secondo
+	//array passato in ingresso
 	typename graph<U>::const_iterator it1, ite1;
 	unsigned int index = 0;
 	for(it1 = g1.begin(), ite1 = g1.end(); it1 != ite1; ++it1){
 		std::cout << *it1 << " <--> " << arr_final[index] << std::endl;
-		//assert(*it1 == arr_final[index]);
+		assert(*it1 == arr_final[index]);
 		index++;
+		assert(index <= LENGTH_2);
 	}
 	assert(index == g1.num_nodes());
 	std::cout << std::endl;
@@ -250,43 +258,41 @@ void test_iterators(const U arr[], unsigned int length,
 
 int main()
 {
-	unsigned int length = 10;
 
 	//ripetuti elementi in index 2-3 e 0-7
-	char arr_char[length] = {'a', 'b', 'c', 'c', 'd', 'e', 'f', 'a', 'g', 'o'};
-	custom arr_custom[length] = {{"mario", "lezzi"}, {"mauro","garli"}, {"giacomo","lundini"}, {"giacomo", "lundini"},
+	char arr_char[LENGTH] = {'a', 'b', 'c', 'c', 'd', 'e', 'f', 'a', 'g', 'o'};
+	custom arr_custom[LENGTH] = {{"mario", "lezzi"}, {"mauro","garli"}, {"giacomo","lundini"}, {"giacomo", "lundini"},
 								{"luigi","garli"}, {"luigi","vincenzi"}, {"filippo", "gurlomi"}, {"mario","lezzi"},
 								{"mario","gastelletti"},{"pedro","hernandez"}};
 
 	std::cout << "----->TEST COSTRUTTORI<-----" << std::endl;
-	test_constructors<char>(arr_char,length);
-	test_constructors<custom>(arr_custom,length);
+	test_constructors<char>(arr_char);
+	test_constructors<custom>(arr_custom);
 
 	std::cout << "----->TEST ADD/REMOVE<-----" << std::endl;
-	test_add_remove<char>(arr_char,length);
-	test_add_remove<custom>(arr_custom,length);
+	test_add_remove<char>(arr_char);
+	test_add_remove<custom>(arr_custom);
 
 	std::cout << "----->TEST EQUALS<-----" << std::endl;
-	test_equals<char>(arr_char,length);
-	test_equals<custom>(arr_custom,length);
+	test_equals<char>(arr_char);
+	test_equals<custom>(arr_custom);
 
 	std::cout << "----->TEST UTILS<-----" << std::endl;
-	test_utils<char>(arr_char,length);
-	test_utils<custom>(arr_custom,length);
+	test_utils<char>(arr_char);
+	test_utils<custom>(arr_custom);
 
 	std::cout << "----->TEST OPERATORS<-----" << std::endl;
-	test_operators<char>(arr_char,length);
-	test_operators<custom>(arr_custom,length);
+	test_operators<char>(arr_char);
+	test_operators<custom>(arr_custom);
 
-	unsigned int length_final = 5;
-	char arr_char_final[length] = {'b', 'c', 'e', 'f', 'g'};
-	custom arr_custom_final[length] = {{"mauro","garli"}, {"giacomo","lundini"},
-										{"filippo", "gurlomi"}, {"luigi","vincenzi"},
+	char arr_char_final[LENGTH_2] = {'b', 'c', 'e', 'f', 'g'};
+	custom arr_custom_final[LENGTH_2] = {{"mauro","garli"}, {"giacomo","lundini"},
+										{"luigi","vincenzi"}, {"filippo", "gurlomi"},
 										{"mario","gastelletti"}};
 
 	std::cout << "----->TEST ITERATORS<-----" << std::endl;
-	test_iterators<char>(arr_char,length,arr_char_final,length_final);
-	test_iterators<custom>(arr_custom,length,arr_custom_final,length_final);
+	test_iterators<char>(arr_char,arr_char_final);
+	test_iterators<custom>(arr_custom,arr_custom_final);
 
 	std::cout << ">>>>>>TEST COMPLETATI<<<<<<" << std::endl;
 	return 0;

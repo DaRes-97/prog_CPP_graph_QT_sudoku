@@ -1,6 +1,6 @@
 # PROGETTO C++/QT
 
-Resmini Daniele Andrea	MAT: 830446	
+Resmini Daniele Andrea	-	MAT: 830446	
 
 [d.resmini2@campus.unimib.it](mailto:d.resmini2@campus.unimib.it)
 
@@ -73,7 +73,7 @@ per esempio, se volessi settare un arco tra *name2* e *name4*:
 |    **2**    | false | false |  false   | false |
 |    **3**    | false | false |  false   | false |
 
-➔ `arch[1][2] = true;`
+➔ `_arch[1][2] = true;`
 
 stesso procedimento per la rimozione, settando la casella appropriata a *false*
 
@@ -182,3 +182,21 @@ bool solve(configuration conf){
 ```
 
 - **NOTA:** per alcune configurazioni di gioco, tale metodo potrebbe portare a tempistiche di risoluzione eccessive.
+
+## NOTE FINALI
+
+Il progetto **C++** è stato testato sulle seguenti piattaforme:
+
+- **Microsoft Windows 10** 64 bit, build: 19042.746
+  - Compiler → g++ (MinGW.org GCC-6.3.0-1) 6.3.0
+- **Ubuntu 20.04.2**, tramite WSL2
+  - Compiler → g++ (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
+  - Memory check → valgrind-3.15.0
+
+il progetto **QT** è stato testato sulle seguenti piattaforme:
+
+- **Microsoft Windows 10** 64 bit, build: 19042.746
+  - Compiler → QT 5.15.2, MinGW-based
+- **Ubuntu 20.04.2** 64 bit, tramite HYPER-V
+  - Compiler → QT 5.12.8, (GCC 9.3.0, 64 bit)
+  - Memory check → valgrind-3.15.0

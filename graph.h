@@ -23,9 +23,9 @@ class graph
 {
 private:
 
-	typedef unsigned int idtype;
+	typedef unsigned int idxtype;
 
-	idtype _len; ///< dimensione degli array
+	idxtype _len; ///< dimensione degli array
 	T* _node; ///< array degli identificativi dei nodi
 	bool** _arch; ///< matrice di adiacenza
 
@@ -38,7 +38,7 @@ private:
 
 		@param len lunghezza array
 	*/
-	inline void init_vars(idtype len)
+	inline void init_vars(idxtype len)
 	{
 		if(len == 0){
 			_node = nullptr;
@@ -52,9 +52,9 @@ private:
 		_arch = new bool*[len];
 		_len = len;
 
-		for(idtype c = 0; c < len; c++){
+		for(idxtype c = 0; c < len; c++){
 			_arch[c] = new bool[len];
-			for(idtype d = 0; d < len; d++){
+			for(idxtype d = 0; d < len; d++){
 				_arch[c][d] = false;
 			}
 		}
@@ -71,11 +71,11 @@ private:
 		@param arch matrice di adiacenza
 		@param len lunghezza array e matrice
 	*/
-	inline void destr_vars(T* node, bool** arch, idtype len)
+	inline void destr_vars(T* node, bool** arch, idxtype len)
 	{
 		delete[] node;
 
-		for(idtype c = 0; c < len; c++){
+		for(idxtype c = 0; c < len; c++){
 			delete[] arch[c];
 		}
 		delete[] arch;
@@ -100,7 +100,7 @@ private:
 		@param node identificativo del nodo
 		@return c indice (IDX) del nodo
 	*/
-	const idtype indexof(const T node) const
+	const idxtype indexof(const T node) const
 	{
 		for(int c = 0; c < _len; c++){
 			if(_node[c] == node)
@@ -160,9 +160,9 @@ public:
 	{
 		init_vars(other._len);
 
-		for(idtype c = 0; c < _len; c++){
+		for(idxtype c = 0; c < _len; c++){
 			_node[c] = other._node[c];
-			for(idtype d = 0; d < _len; d++){
+			for(idxtype d = 0; d < _len; d++){
 				_arch[c][d] = other._arch[c][d];
 			}
 		}
@@ -220,8 +220,8 @@ public:
 	const bool has_edge(T src, T dst) const
 	{
 		if(exists(src) && exists(dst)){
-			idtype idx1 = indexof(src);
-			idtype idx2 = indexof(dst);
+			idxtype idx1 = indexof(src);
+			idxtype idx2 = indexof(dst);
 
 			bool res = _arch[idx1][idx2];
 			return res;
@@ -248,11 +248,11 @@ public:
 			return false;
 		}
 
-		for(idtype c = 0; c < _len; c++){
+		for(idxtype c = 0; c < _len; c++){
 			if(!other.exists(_node[c])) //stessi nodi
 				return false;
 
-			for(idtype d = 0; d < _len; d++){
+			for(idxtype d = 0; d < _len; d++){
 				if(_arch[c][d]){
 					if(!other.has_edge(_node[c],_node[d])) // stessi archi
 						return false;
@@ -289,15 +289,15 @@ public:
 
 			T* node_temp = _node;
 			bool** arch_temp = _arch;
-			idtype len_temp = _len;
+			idxtype len_temp = _len;
 
 			init_vars(len_temp+1); // reinizializzo la classe
 			_node[_len-1] = node;
 
 			//copio i vecchi dati sul nuovo grafo
-			for(idtype c = 0; c < len_temp; c++){
+			for(idxtype c = 0; c < len_temp; c++){
 				_node[c] = node_temp[c];
-				for(idtype d = 0; d < len_temp; d++){
+				for(idxtype d = 0; d < len_temp; d++){
 					_arch[c][d] = arch_temp[c][d];
 				}
 			}
@@ -325,8 +325,8 @@ public:
 		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
 
-		idtype idx1 = indexof(src);
-		idtype idx2 = indexof(dst);
+		idxtype idx1 = indexof(src);
+		idxtype idx2 = indexof(dst);
 
 		if(_arch[idx1][idx2])
 			throw logicexception("arco gia inserito!", 4);
@@ -355,12 +355,12 @@ public:
 			throw logicexception("nodo non presente!", 3);
 
 		//indice nodo da eliminare
-		idtype idx = indexof(node);
+		idxtype idx = indexof(node);
 
 		//puntatori ai vecchi dati
 		T* node_temp = _node;
 		bool** arch_temp = _arch;
-		idtype len_temp = _len;
+		idxtype len_temp = _len;
 
 
 		//inizializzo nuovi array
@@ -409,8 +409,8 @@ public:
 		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
 
-		idtype idx1 = indexof(src);
-		idtype idx2 = indexof(dst);
+		idxtype idx1 = indexof(src);
+		idxtype idx2 = indexof(dst);
 
 		if(!_arch[idx1][idx2])
 			throw logicexception("arco non presente!", 3);
@@ -430,7 +430,7 @@ public:
 
 		@return _len lunghezza array
 	*/
-	const idtype len() const
+	const idxtype len() const
 	{
 		return _len;
 	}
@@ -443,11 +443,11 @@ public:
 
 		@return count numero di nodi nel grafo
 	*/
-	const idtype num_nodes() const
+	const idxtype num_nodes() const
 	{
-		idtype count = 0;
+		idxtype count = 0;
 
-		for(idtype c = 0; c < _len; c++){
+		for(idxtype c = 0; c < _len; c++){
 			count++;
 		}
 
@@ -462,11 +462,11 @@ public:
 
 		@return count numero di archi nel grafo
 	*/
-	const idtype num_arches() const
+	const idxtype num_arches() const
 	{
-		idtype count = 0;
-		for(idtype c = 0; c < _len; c++){
-			for(idtype d = 0; d < _len; d++){
+		idxtype count = 0;
+		for(idxtype c = 0; c < _len; c++){
+			for(idxtype d = 0; d < _len; d++){
 				if(_arch[c][d])
 					count++;
 			}
@@ -485,19 +485,19 @@ public:
 	void print()
 	{
 		std::cout << "<node,idx>: ";
-		for(idtype c = 0; c < _len; c++){
+		for(idxtype c = 0; c < _len; c++){
 			std::cout << "<" << _node[c] << "," << c << ">, ";
 		}
 		std::cout << std::endl;
 
 		std::cout << "adjacency matrix: " << std::endl;
 		std::cout << "   ";
-		for(idtype c = 0; c < _len; c++)
+		for(idxtype c = 0; c < _len; c++)
 				std::cout << c << "  ";
 		std::cout << std::endl;
-		for(idtype c = 0; c < _len; c++){
+		for(idxtype c = 0; c < _len; c++){
 			std::cout << c << "  ";
-			for(idtype d = 0; d < _len; d++){
+			for(idxtype d = 0; d < _len; d++){
 				std::cout << _arch[c][d] << "  ";
 			}
 			std::cout << std::endl;
@@ -534,7 +534,6 @@ public:
 	public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef T                         value_type;
-		typedef ptrdiff_t                 difference_type;
 		typedef const T*                  pointer;
 		typedef const T&                  reference;
 
