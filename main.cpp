@@ -1,3 +1,8 @@
+/*
+	Resmini Daniele Andrea - MAT: 830446
+	Progetto C++ - GRAPH
+*/
+
 #include <iostream>
 #include <cassert>
 #include "graph.h"
@@ -11,11 +16,11 @@ void test_constructors(const U arr[])
 {
 	//costruttore vuoto
 	graph<U> m1;
-	assert(m1.len() == 0);
+	assert(m1.num_nodes() == 0);
 
 	//costruttore 1 elemento
 	graph<U> m2(arr[0]);
-	assert(m2.len() == 1);
+	assert(m2.num_nodes() == 1);
 
 	//costruttore copia
 	graph<U> m3(m2);
@@ -47,7 +52,7 @@ void test_add_remove(const U arr[])
 	m1.add(arr[6]);
 	m1.add(arr[8]);
 
-	len = m1.len(); //salvo lunghezza array
+	len = m1.num_nodes(); //salvo lunghezza array
 
 	//eliminazione corretta
 	m1.remove(arr[4]);
@@ -62,7 +67,7 @@ void test_add_remove(const U arr[])
 
 	m1.add(arr[9]);
 
-	assert(m1.len() == len);
+	assert(m1.num_nodes() == len);
 
 	//aggiungo arco correttamente
 	m1.add(arr[2],arr[9]);
@@ -110,7 +115,7 @@ void test_add_remove(const U arr[])
 	m1.remove(arr[2]);
 	m1.remove(arr[1]);
 	m1.remove(arr[0]);
-	assert(m1.len() == 0);
+	assert(m1.num_nodes() == 0);
 }
 
 template<typename U>
@@ -159,7 +164,6 @@ void test_utils(const U arr[])
 
 	assert(!g1.exists(arr[0]));
 	assert(!g1.has_edge(arr[0],arr[1]));
-	assert(g1.len() == 0);
 	assert(g1.num_nodes() == 0);
 	assert(g1.num_arches() == 0);
 
@@ -169,7 +173,6 @@ void test_utils(const U arr[])
 	assert(g2.exists(arr[0]));
 	assert(!g2.exists(arr[1]));
 	assert(!g2.has_edge(arr[0],arr[0]));
-	assert(g2.len() == 1);
 	assert(g2.num_nodes() == 1);
 	assert(g2.num_arches() == 0);
 
@@ -186,7 +189,6 @@ void test_utils(const U arr[])
 
 	assert(g2.exists(arr[0]));
 	assert(g2.exists(arr[1]));
-	assert(g2.len() == 4);
 	assert(g2.num_nodes() == 4);
 	assert(g2.num_arches() == 2);
 
@@ -199,19 +201,20 @@ void test_utils(const U arr[])
 template<typename U>
 void test_operators(const U arr[])
 {
-	//grafo vuoto
+	//grafo vuoto, not equals
 	graph<U> g1;
-	graph<U> g2 = g1;
+	graph<U> g2(arr[1]);
 
-	assert(g1.equals(g2));
+	assert(!g1.equals(g2));
+	assert(g1 != g2);
 
-	//grafo 1 elemento
+	//grafo 1 elemento, equals
 	graph<U> g3(arr[0]);
 	graph<U> g4 = g3;
 
 	assert(g3.equals(g4));
 
-	//grafo con diversi elementi
+	//grafo con diversi elementi, equals
 	graph<U> g5(arr[0]);
 	graph<U> g6(arr[5]);
 	g5.add(arr[1]);
@@ -222,6 +225,10 @@ void test_operators(const U arr[])
 	g6 = g5;
 
 	assert(g5.equals(g6));
+	assert(g5 == g6);
+
+	//operator<< test visuale
+	std::cout << g6 << std::endl;
 }
 
 template<typename U>

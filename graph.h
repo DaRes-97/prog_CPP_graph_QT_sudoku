@@ -1,3 +1,8 @@
+/*
+	Resmini Daniele Andrea - MAT: 830446
+	Progetto C++ - GRAPH
+*/
+
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -23,10 +28,11 @@ class graph
 {
 private:
 
+	typedef T nodetype;
 	typedef unsigned int idxtype;
 
 	idxtype _len; ///< dimensione degli array
-	T* _node; ///< array degli identificativi dei nodi
+	nodetype* _node; ///< array degli identificativi dei nodi
 	bool** _arch; ///< matrice di adiacenza
 
 	/**
@@ -48,7 +54,7 @@ private:
 			return;
 		}
 
-		_node = new T[len];
+		_node = new nodetype[len];
 		_arch = new bool*[len];
 		_len = len;
 
@@ -71,7 +77,7 @@ private:
 		@param arch matrice di adiacenza
 		@param len lunghezza array e matrice
 	*/
-	inline void destr_vars(T* node, bool** arch, idxtype len)
+	inline void destr_vars(nodetype* node, bool** arch, idxtype len)
 	{
 		delete[] node;
 
@@ -84,7 +90,7 @@ private:
 	/**
 		@brief funzione di swap
 	*/
-	void swap(graph<T> &other)
+	void swap(graph<nodetype> &other)
 	{
 		std::swap(this->_node,other._node);
 		std::swap(this->_arch,other._arch);
@@ -100,7 +106,7 @@ private:
 		@param node identificativo del nodo
 		@return c indice (IDX) del nodo
 	*/
-	const idxtype indexof(const T node) const
+	const idxtype indexof(const nodetype node) const
 	{
 		for(int c = 0; c < _len; c++){
 			if(_node[c] == node)
@@ -135,14 +141,22 @@ public:
 		costruttore che inizializza la classe
 		graph con un solo nodo
 
-		@param node nome del nodo
+		@param node identificativo del nodo
 
 		@post _len == 1
 	*/
-	graph(T node) : _len(0), _node(nullptr), _arch(nullptr)
+	graph(nodetype node) : _len(0), _node(nullptr), _arch(nullptr)
 	{
-		init_vars(1);
-		_node[0] = node;
+		try{
+			init_vars(1);
+			_node[0] = node;
+		} catch(...){
+			destr_vars(_node, _arch, _len);
+			_node = nullptr;
+			_arch = nullptr;
+			_len = 0;
+			throw;
+		}
 
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo 1 elemento" << std::endl;
@@ -156,15 +170,23 @@ public:
 
 		@param other graph da copiare
 	*/
-	graph(const graph<T> &other) : _len(0), _node(nullptr), _arch(nullptr)
+	graph(const graph<nodetype> &other) : _len(0), _node(nullptr), _arch(nullptr)
 	{
-		init_vars(other._len);
+		try{
+			init_vars(other._len);
 
-		for(idxtype c = 0; c < _len; c++){
-			_node[c] = other._node[c];
-			for(idxtype d = 0; d < _len; d++){
-				_arch[c][d] = other._arch[c][d];
+			for(idxtype c = 0; c < _len; c++){
+				_node[c] = other._node[c];
+				for(idxtype d = 0; d < _len; d++){
+					_arch[c][d] = other._arch[c][d];
+				}
 			}
+		} catch (...) {
+			destr_vars(_node, _arch, _len);
+			_node = nullptr;
+			_arch = nullptr;
+			_len = 0;
+			throw;
 		}
 
 		#ifndef NDEBUG
@@ -196,7 +218,7 @@ public:
 		@param node identificativo del nodo
 		@return res risultato della verifica
 	*/
-	const bool exists(const T node) const
+	const bool exists(const nodetype node) const
 	{
 		int idx = indexof(node);
 
@@ -217,7 +239,7 @@ public:
 		@param dst identificativo nodo di arrivo
 		@return res risultato della verifica
 	*/
-	const bool has_edge(T src, T dst) const
+	const bool has_edge(const nodetype src, const nodetype dst) const
 	{
 		if(exists(src) && exists(dst)){
 			idxtype idx1 = indexof(src);
@@ -239,7 +261,7 @@ public:
 
 		@param other graph da confrontare con this
 	*/
-	const bool equals(const graph<T> &other) const
+	const bool equals(const graph<nodetype> &other) const
 	{
 
 		if(num_nodes() != other.num_nodes() || //stesso num di nodi
@@ -274,8 +296,9 @@ public:
  		corretta e copia i dati del vecchio grafo
 
 		@param node nome del nuovo nodo
+		@throws logicexception nodo già inserito (4)
 	*/
-	void add(T node)
+	void add(nodetype node)
 	{
 		if(exists(node)) //nodo già inserito
 			throw logicexception("nodo gia inserito!", 4);
@@ -287,7 +310,7 @@ public:
 
 		} else { //graph già inizializzato
 
-			T* node_temp = _node;
+			nodetype* node_temp = _node;
 			bool** arch_temp = _arch;
 			idxtype len_temp = _len;
 
@@ -319,8 +342,10 @@ public:
 
 		@param src identificativo nodo di partenza
 		@param dst identificativo nodo di arrivo
+		@throws logicexception uno dei nodi non esiste (2)
+		@throws logicexception arco già inserito (4)
 	*/
-	void add(T src, T dst)
+	void add(nodetype src, nodetype dst)
 	{
 		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
@@ -346,8 +371,10 @@ public:
 		della validità del nodo inserito come parametro
 
 		@param node identificativo del nodo da rimuovere
+		@throws logicexception grafo vuoto (1)
+		@throws logicexception nodo non presente (3)
 	*/
-	void remove(T node)
+	void remove(nodetype node)
 	{
 		if(_len == 0) //grafo vuoto
 			throw logicexception("grafo vuoto!", 1);
@@ -358,7 +385,7 @@ public:
 		idxtype idx = indexof(node);
 
 		//puntatori ai vecchi dati
-		T* node_temp = _node;
+		nodetype* node_temp = _node;
 		bool** arch_temp = _arch;
 		idxtype len_temp = _len;
 
@@ -403,8 +430,10 @@ public:
 
 		@param src identificativo nodo di partenza
 		@param dst identificativo nodo di arrivo
+		@throws logicexception uno dei nodi non esiste (2)
+		@throws logicexception arco non presente (3)
 	*/
-	void remove(T src, T dst)
+	void remove(nodetype src, nodetype dst)
 	{
 		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
@@ -423,35 +452,16 @@ public:
 	}
 
 	/**
-		@brief dimensione grafo
-
-		ritorna la lunghezza degli
-		array di supporto
-
-		@return _len lunghezza array
-	*/
-	const idxtype len() const
-	{
-		return _len;
-	}
-
-	/**
 		@brief conteggio numero di nodi
 
 		la funzione effettua il conteggio del
 		numero di nodi presenti nel grafo
 
-		@return count numero di nodi nel grafo
+		@return _len numero di nodi nel grafo
 	*/
 	const idxtype num_nodes() const
 	{
-		idxtype count = 0;
-
-		for(idxtype c = 0; c < _len; c++){
-			count++;
-		}
-
-		return count;
+		return _len;
 	}
 
 	/**
@@ -484,24 +494,7 @@ public:
 	*/
 	void print()
 	{
-		std::cout << "<node,idx>: ";
-		for(idxtype c = 0; c < _len; c++){
-			std::cout << "<" << _node[c] << "," << c << ">, ";
-		}
-		std::cout << std::endl;
-
-		std::cout << "adjacency matrix: " << std::endl;
-		std::cout << "   ";
-		for(idxtype c = 0; c < _len; c++)
-				std::cout << c << "  ";
-		std::cout << std::endl;
-		for(idxtype c = 0; c < _len; c++){
-			std::cout << c << "  ";
-			for(idxtype d = 0; d < _len; d++){
-				std::cout << _arch[c][d] << "  ";
-			}
-			std::cout << std::endl;
-		}
+		std::cout << *this << std::endl;
 	}
 
 	/**
@@ -511,9 +504,9 @@ public:
 		il contenuto di other in *this
 
 		@param other graph da copiare
-		@return reference a graph<T>
+		@return reference a graph<nodetype>
 	*/
-	graph& operator=(const graph<T> &other)
+	graph& operator=(const graph<nodetype> &other)
 	{
 		if(&other != this){ //controllo auto-assegnamento
 			graph tmp(other);
@@ -527,15 +520,50 @@ public:
 		return *this;
 	}
 
+	/**
+		@brief ridefinizione operatore di stream
+
+		ridefinizione dell'operatore di stream per scrivere
+		un graph su uno stream di output
+
+		@param os stream di output (operando di sx)
+		@param db graph da scrivere (operando di dx)
+
+		@return reference allo stream di output
+	*/
+	friend std::ostream& operator<<(std::ostream &os, const graph<nodetype> &g) {
+
+		os << "<node,idx>: ";
+		for(idxtype c = 0; c < g._len; c++){
+			os << "<" << g._node[c] << "," << c << ">, ";
+		}
+		os << "\n";
+
+		os << "adjacency matrix: " << "\n";
+		os << "   ";
+		for(idxtype c = 0; c < g._len; c++)
+				os << c << "  ";
+		os << "\n";
+		for(idxtype c = 0; c < g._len; c++){
+			os << c << "  ";
+			for(idxtype d = 0; d < g._len; d++){
+				os << g._arch[c][d] << "  ";
+			}
+			os << "\n";
+		}
+
+		return os;
+	}
+
 	class const_iterator {
 
 		const T *ptr_node;
 
 	public:
-		typedef std::forward_iterator_tag iterator_category;
-		typedef T                         value_type;
-		typedef const T*                  pointer;
-		typedef const T&                  reference;
+		typedef std::forward_iterator_tag	iterator_category;
+		typedef T							value_type;
+		typedef const nodetype*				pointer;
+		typedef const nodetype&				reference;
 
 	
 		const_iterator() : ptr_node(nullptr) {}
@@ -594,7 +622,7 @@ public:
 		friend class graph;
 
 		// Costruttore privato di inizializzazione usato dalla classe container
-		const_iterator(const T* nm) : ptr_node(nm) {}
+		const_iterator(const nodetype* nm) : ptr_node(nm) {}
 		
 	}; // classe const_iterator
 
@@ -610,5 +638,35 @@ public:
 		return const_iterator(_node+_len);
 	}
 };
+
+/**
+	@brief ridefinizione operatore di uguaglianza
+
+	ridefinizione dell' operatore di uguaglianza tra due 
+	graph basato sulla funzione equals()
+
+	@param lg graph di sx
+	@param rg graph di dx
+	@return responso della funzione
+*/
+template <typename U>
+bool operator==(const graph<U>& lg, const graph<U>& rg){
+	return lg.equals(rg);
+}
+
+/**
+	@brief ridefinizione operatore di disuguaglianza
+
+	ridefinizione dell' operatore di disuguaglianza tra due 
+	graph basato sulla funzione equals()
+
+	@param lg graph di sx
+	@param rg graph di dx
+	@return responso della funzione
+*/
+template <typename U>
+bool operator!=(const graph<U>& lg, const graph<U>& rg){
+	return !lg.equals(rg);
+}
 
 #endif

@@ -1,3 +1,8 @@
+/*
+	Resmini Daniele Andrea - MAT: 830446
+	Progetto C++ - GRAPH
+*/
+
 #ifndef CUSTOMDATA_H
 #define CUSTOMDATA_H
 

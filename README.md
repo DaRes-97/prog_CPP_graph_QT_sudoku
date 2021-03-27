@@ -59,7 +59,7 @@ anche qui la funzione `indexof(T node)` si occupa di ritornare l'*IDX* dei due n
 per esempio, se volessi settare un arco tra *name2* e *name4*:
 
 
-|    ID    |   0   |   1   |   2   |   3   |
+|   IDX    |   0   |   1   |   2   |   3   |
 | :------: | :---: | :---: | :---: | :---: |
 | **node** | name1 | name2 | name4 | name5 |
 
@@ -79,6 +79,17 @@ stesso procedimento per la rimozione, settando la casella appropriata a *false*
 
 - gli array mantengono una dimensione coerente durante tutto il ciclo del programma
 - la rimozione di un nodo comporta anche l'**eliminazione di tutti gli archi entranti ed uscenti da esso**
+
+### ECCEZIONI
+
+Durante l'aggiunta o la rimozione di nodi, vengono generate delle eccezioni nei seguenti casi:
+
+- si vuole aggiungere un **nodo/arco già esistente** (CODICE 4)
+- si vuole eliminare un **nodo/arco non presente** (CODICE 3)
+- si vuole eliminare un nodo quando il **grafo è vuoto** (CODICE 1)
+- si vuole aggiungere un arco tra **uno o due nodi non inizializzati** (CODICE 2)
+
+in tal caso vengono generate delle *logicexception* della gerarchia standard delle eccezioni, con i codici sopra esposti
 
 ### EXISTS/HAS_EDGE
 

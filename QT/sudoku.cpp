@@ -1,3 +1,8 @@
+/*
+    Resmini Daniele Andrea - MAT: 830446
+    Progetto QT - SUDOKU
+*/
+
 #include "sudoku.h"
 #include "ui_sudoku.h"
 #include <QIntValidator>
@@ -6,10 +11,6 @@
 #include <QMessageBox>
 #include <QRandomGenerator>
 #include <QThread>
-
-//numero di celle riempite
-//casualmente
-#define LEVEL 15
 
 Sudoku::Sudoku(QWidget *parent)
     : QMainWindow(parent)

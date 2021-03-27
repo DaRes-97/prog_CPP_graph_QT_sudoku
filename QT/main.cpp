@@ -1,3 +1,8 @@
+/*
+    Resmini Daniele Andrea - MAT: 830446
+    Progetto QT - SUDOKU
+*/
+
 #include "sudoku.h"
 
 #include <QApplication>
