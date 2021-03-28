@@ -99,7 +99,7 @@ void test_add_remove(const U arr[])
 		std::cout << e.what() << std::endl;
 	}
 
-	//nodo non presente
+	//arco non presente
 	try{
 		m1.remove(arr[2],arr[4]);
 		assert(false);
@@ -267,6 +267,7 @@ int main()
 {
 
 	//ripetuti elementi in index 2-3 e 0-7
+	double arr_double[LENGTH] = {1.2, 2.4, 5.1, 5.1, 3.2, 8.5, 4.4, 1.2, 9.6, 2.6};
 	char arr_char[LENGTH] = {'a', 'b', 'c', 'c', 'd', 'e', 'f', 'a', 'g', 'o'};
 	custom arr_custom[LENGTH] = {{"mario", "lezzi"}, {"mauro","garli"}, {"giacomo","lundini"}, {"giacomo", "lundini"},
 								{"luigi","garli"}, {"luigi","vincenzi"}, {"filippo", "gurlomi"}, {"mario","lezzi"},
@@ -275,23 +276,29 @@ int main()
 	std::cout << "----->TEST COSTRUTTORI<-----" << std::endl;
 	test_constructors<char>(arr_char);
 	test_constructors<custom>(arr_custom);
+	test_constructors<double>(arr_double);
 
 	std::cout << "----->TEST ADD/REMOVE<-----" << std::endl;
 	test_add_remove<char>(arr_char);
 	test_add_remove<custom>(arr_custom);
+	test_add_remove<double>(arr_double);
 
 	std::cout << "----->TEST EQUALS<-----" << std::endl;
 	test_equals<char>(arr_char);
 	test_equals<custom>(arr_custom);
+	test_equals<double>(arr_double);
 
 	std::cout << "----->TEST UTILS<-----" << std::endl;
 	test_utils<char>(arr_char);
 	test_utils<custom>(arr_custom);
+	test_utils<double>(arr_double);
 
 	std::cout << "----->TEST OPERATORS<-----" << std::endl;
 	test_operators<char>(arr_char);
 	test_operators<custom>(arr_custom);
+	test_operators<double>(arr_double);
 
+	double arr_double_final[LENGTH_2] = {2.4, 5.1, 8.5, 4.4, 9.6};
 	char arr_char_final[LENGTH_2] = {'b', 'c', 'e', 'f', 'g'};
 	custom arr_custom_final[LENGTH_2] = {{"mauro","garli"}, {"giacomo","lundini"},
 										{"luigi","vincenzi"}, {"filippo", "gurlomi"},
@@ -300,6 +307,7 @@ int main()
 	std::cout << "----->TEST ITERATORS<-----" << std::endl;
 	test_iterators<char>(arr_char,arr_char_final);
 	test_iterators<custom>(arr_custom,arr_custom_final);
+	test_iterators<double>(arr_double,arr_double_final);
 
 	std::cout << ">>>>>>TEST COMPLETATI<<<<<<" << std::endl;
 	return 0;

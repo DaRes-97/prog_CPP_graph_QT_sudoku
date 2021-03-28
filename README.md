@@ -14,6 +14,8 @@ Il grafo è stato implementato tramite **array dinamici**:
 
 ​		`unsigned int _len`	indicatore dimensione degli array
 
+--> con *T* dato generico
+
 ### COSTRUTTORI
 
 `graph(T node)`:	il costruttore principale prende in ingresso un elemento di tipo *T*  ed inizializza gli array a dimensione unitaria, inserendo tale elemento.
@@ -166,7 +168,7 @@ Premendo il tasto **RESET** il gioco ritorna allo stato inziale.
 
 ### IMPLEMENTAZIONE INTERNA
 
-- gli stati di risoluzione intermedi sono stati implementati tramite due **QStack**, `prev` e `next`, che vengono riempite e svuotate alternativamente
+- gli stati di risoluzione intermedi sono stati implementati tramite due *QStack*, `prev_state` e `next_state`, che vengono riempite e svuotate alternativamente
 - l'algoritmo di risoluzione automatica utilizza la tecnica del **backtracking**, di cui sotto:
 
 ```java
@@ -204,7 +206,7 @@ Il progetto **C++** è stato testato sulle seguenti piattaforme:
   - Compiler → g++ (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
   - Memory check → valgrind-3.15.0
 
-il progetto **QT** è stato testato sulle seguenti piattaforme:
+Il progetto **QT** è stato testato sulle seguenti piattaforme:
 
 - **Microsoft Windows 10** 64 bit, build: 19042.746
   - Compiler → QT 5.15.2, MinGW-based
