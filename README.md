@@ -118,7 +118,7 @@ Ai fini del controllo, **non conta l'ordine** dei nomi nelle celle degli array
 
 è possibile visionare lo stato del grafo tramite il metodo `print()`, che stampa nell'ordine:
 
-- coppia dei valori *<node,ID>* 
+- coppia dei valori *<node,IDX>* 
 - matrice di adiacenza
 
 un esempio di output:
@@ -141,24 +141,22 @@ La schermata iniziale si presenta in questo modo:
 
 
 
-A questo punto, l'utente può iniziare ad inserire i numeri nelle caselle attive, e una volta finito, cliccando sul tasto **SOLVE**, si attiva il sistema di risoluzione.
+A questo punto, l'utente può iniziare ad inserire i numeri nelle caselle, e una volta finito, cliccando sul tasto **SOLVE**, si attiva il sistema di risoluzione.
 
 - se la griglia è già stata riempita completamente, il sistema controlla la **correttezza dei valori immessi** (non deve essere presente nessun duplicato)
 - altrimenti, **inserisce i valori in maniera automatica** ove compatibile con il rispetto delle regole del gioco
 
 Se la griglia finale risulta **corretta**, appare un messaggio della riuscita dell'operazione e si attivano le frecce **<** e **>** che consentono di ripercorrere i diversi stadi della risoluzione
 
-![](https://drive.google.com/uc?id=1iPhUp_rd6dnk2Oq-mZsNmmVKitUT8uF8)
+![](https://drive.google.com/uc?id=1QtORPy9LSHyTdLxZcvz0C627nnLm0HrL)
 
-
-
-![](https://drive.google.com/uc?id=1gj3kUQ5cBmyTAdk145euWexsRBuy7RaA)
+![](https://drive.google.com/uc?id=1scReskIuvC2AlikUQO0gsJZ6pfy1t3YV)
 
 
 
 In caso di **errori** nella risoluzione, il sistema si blocca e vengono evidenziati i settori di gioco che presentano duplicati:
 
-![](https://drive.google.com/uc?id=1p6BoEZhLEGVHVyPVxHOmwgs5kaDUTZ2v)
+![](https://drive.google.com/uc?id=1w_aMP_1I1m5pDJp139rX8hTI7JnOCqsC)
 
 
 

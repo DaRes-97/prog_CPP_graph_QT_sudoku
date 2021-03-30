@@ -31,6 +31,7 @@ Sudoku::~Sudoku()
 {
     prev_state.clear();
     next_state.clear();
+    initial_state.clear();
     delete ui;
 }
 
@@ -38,6 +39,15 @@ void Sudoku::on_solveButton_clicked()
 {
     //acquisisco i valori delle celle
     QVector<QVector<int>> board = get_content();
+
+    //setto lo stato iniziale
+    for(int c = 0; c < 9; c++){
+        QVector<bool> row;
+        for(int d = 0; d < 9; d++){
+            row.append(board[c][d] != 0);
+        }
+        initial_state.append(row);
+    }
 
     //risolvo il sudoku
     bool res = solve(board);
@@ -59,7 +69,7 @@ void Sudoku::on_solveButton_clicked()
     set_content(final);
 
     foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
-        le->setEnabled(false);
+        le->setReadOnly(true);
     }
     ui->solveButton->setEnabled(false);
     if(res){
@@ -74,13 +84,14 @@ void Sudoku::on_resetButton_clicked()
     //svuoto le stack
     prev_state.clear();
     next_state.clear();
+    initial_state.clear();
 
     //riporto il widget allo stato iniziale
     foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
         le->setText("");
-        le->setEnabled(true);
+        le->setReadOnly(false);
         le->setStyleSheet("QLineEdit { background: rgb(255, 255, 255);"
-                    " selection-background-color: rgb(0, 0, 255); }");
+                        "color: black }");
     }
     ui->solveButton->setEnabled(true);
     ui->prevButton->setEnabled(false);
@@ -166,11 +177,9 @@ void Sudoku::set_background_col(int col,bool isred)
     QString style;
 
     if(isred){
-        style = "QLineEdit { background: rgb(255, 150, 150);"
-                "selection-background-color: rgb(0, 0, 255); }";
+        style = "QLineEdit { background: rgb(255, 150, 150) }";
     } else {
-        style = "QLineEdit { background: rgb(255, 255, 255);"
-                "selection-background-color: rgb(0, 0, 255); }";
+        style = "QLineEdit { background: rgb(255, 255, 255) }";
     }
 
     for(int d = 0; d < 9; d++){
@@ -198,11 +207,9 @@ void Sudoku::set_background_row(int row, bool isred)
     QString style;
 
     if(isred){
-        style = "QLineEdit { background: rgb(255, 150, 150);"
-                "selection-background-color: rgb(0, 0, 255); }";
+        style = "QLineEdit { background: rgb(255, 150, 150) }";
     } else {
-        style = "QLineEdit { background: rgb(255, 255, 255);"
-                "selection-background-color: rgb(0, 0, 255); }";
+        style = "QLineEdit { background: rgb(255, 255, 255) }";
     }
 
     for(int d = 0; d < 9; d++){
@@ -227,11 +234,9 @@ void Sudoku::set_background_sect(int sect,bool isred)
     QString style;
 
     if(isred){
-        style = "QLineEdit { background: rgb(255, 150, 150);"
-                "selection-background-color: rgb(0, 0, 255); }";
+        style = "QLineEdit { background: rgb(255, 150, 150) }";
     } else {
-        style = "QLineEdit { background: rgb(255, 255, 255);"
-                "selection-background-color: rgb(0, 0, 255); }";
+        style = "QLineEdit { background: rgb(255, 255, 255) }";
     }
 
     for(int c = row; c <= row+2; c++){
@@ -356,10 +361,12 @@ QVector<QVector<int>> Sudoku::get_content()
 }
 
 //il metodo setta il contenuto di una matrice 9x9
-//all'interno dello spazio di gioco e setta sfondo rosso
-//sui settori errati
+//all'interno dello spazio di gioco, setta sfondo rosso
+//sui settori errati e colora di blu i numeri inseriti
+//prima di cliccare il tasto SOLVE
 void Sudoku::set_content(QVector<QVector<int>> board)
 {
+    //sfondo bianco per tutte le caselle
     for(int c = 0; c < 9; c++){
         set_background_row(c,false);
         set_background_col(c,false);
@@ -372,10 +379,23 @@ void Sudoku::set_content(QVector<QVector<int>> board)
 
                 int val = board[c][d];
                 QString str = (val == 0) ? "" : QString::number(val);
+
+                QString style;
+
+                //setto colore del numero
+                if(initial_state[c][d]){
+                    style = "QLineEdit { color: blue }";
+                } else {
+                    style = "QLineEdit { color: black }";
+                }
+
+                le->setStyleSheet(style);
+                //setto il numero
                 le->setText(str);
         }
     }
 
+    //sfondo rosso per settori con duplicati
     for(int c = 0; c < 9; c++){
         if(!check_array(get_row(board,c)))
             set_background_row(c,true);

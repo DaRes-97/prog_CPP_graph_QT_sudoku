@@ -38,6 +38,9 @@ private:
     QStack<QVector<QVector<int>>> prev_state;
     QStack<QVector<QVector<int>>> next_state;
 
+    //stato iniziale del sudoku
+    QVector<QVector<bool>> initial_state;
+
     bool solve(QVector<QVector<int>> board);
 
     //BOX = casella
