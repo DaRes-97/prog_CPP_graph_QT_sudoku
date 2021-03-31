@@ -5,12 +5,10 @@
 
 #include "sudoku.h"
 #include "ui_sudoku.h"
-#include <QIntValidator>
+#include <QRegularExpressionValidator>
 #include <QObject>
 #include <QVector>
 #include <QMessageBox>
-#include <QRandomGenerator>
-#include <QThread>
 
 Sudoku::Sudoku(QWidget *parent)
     : QMainWindow(parent)
@@ -18,9 +16,9 @@ Sudoku::Sudoku(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //inibisco input lettere e simboli
+    //inibisco input lettere e simboli ed escludo lo zero
     foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
-        le->setValidator( new QIntValidator(1, 9, this) );
+        le->setValidator(new QRegularExpressionValidator(QRegularExpression("[1-9]"),this));
         le->setMaxLength(1);
     }
 
@@ -170,18 +168,12 @@ bool Sudoku::solve(QVector<QVector<int>> board)
     return false;
 }
 
-//colora la colonna selezionata di rosso (isred == true)
-//o setta sfondo bianco (isred == false)
-void Sudoku::set_background_col(int col,bool isred)
+//colora la colonna selezionata di rosso
+void Sudoku::set_red_background_col(int col)
 {
     QString style;
 
-    if(isred){
-        style = "QLineEdit { background: rgb(255, 150, 150) }";
-    } else {
-        style = "QLineEdit { background: rgb(255, 255, 255) }";
-    }
-
+    style = "QLineEdit { background: rgb(255, 150, 150) }";
     for(int d = 0; d < 9; d++){
         QLineEdit* le = get_box(d,col);
         le->setStyleSheet(style);
@@ -200,18 +192,12 @@ QVector<int> Sudoku::get_col(QVector<QVector<int>> board, int col)
     return vect;
 }
 
-//colora la riga selezionata di rosso (isred == true)
-//o setta sfondo bianco (isred == false)
-void Sudoku::set_background_row(int row, bool isred)
+//colora la riga selezionata di rosso
+void Sudoku::set_red_background_row(int row)
 {
     QString style;
 
-    if(isred){
-        style = "QLineEdit { background: rgb(255, 150, 150) }";
-    } else {
-        style = "QLineEdit { background: rgb(255, 255, 255) }";
-    }
-
+    style = "QLineEdit { background: rgb(255, 150, 150) }";
     for(int d = 0; d < 9; d++){
         QLineEdit* le = get_box(row,d);
         le->setStyleSheet(style);
@@ -225,20 +211,14 @@ QVector<int> Sudoku::get_row(QVector<QVector<int>> board, int row)
     return vect;
 }
 
-//colora il settore selezionato di rosso (isred == true)
-//o setta sfondo bianco (isred == false)
-void Sudoku::set_background_sect(int sect,bool isred)
+//colora il settore 3x3 selezionato di rosso
+void Sudoku::set_red_background_sect(int sect)
 {
     int row = ((sect-1)/3)*3;
     int col = ((sect-1)%3)*3;
     QString style;
 
-    if(isred){
-        style = "QLineEdit { background: rgb(255, 150, 150) }";
-    } else {
-        style = "QLineEdit { background: rgb(255, 255, 255) }";
-    }
-
+    style = "QLineEdit { background: rgb(255, 150, 150) }";
     for(int c = row; c <= row+2; c++){
         for(int d = col; d <= col+2; d++){
             QLineEdit* le = get_box(c,d);
@@ -279,7 +259,8 @@ QLineEdit* Sudoku::get_box(int row, int col)
 }
 
 //dato l'indice in ingresso relativo
-//alla casella ritorna l'indice corretto
+//alla casella della matrice ritorna
+//l'indice corretto all'interno del grid layout
 //tenendo conto delle linee orizzontali e
 //verticali che ho inserito nel layout,
 //che occupano una posizione
@@ -366,12 +347,6 @@ QVector<QVector<int>> Sudoku::get_content()
 //prima di cliccare il tasto SOLVE
 void Sudoku::set_content(QVector<QVector<int>> board)
 {
-    //sfondo bianco per tutte le caselle
-    for(int c = 0; c < 9; c++){
-        set_background_row(c,false);
-        set_background_col(c,false);
-        set_background_sect(c+1,false);
-    }
 
     for(int c = 0; c < 9; c++){
         for(int d = 0; d < 9; d++){
@@ -381,7 +356,6 @@ void Sudoku::set_content(QVector<QVector<int>> board)
                 QString str = (val == 0) ? "" : QString::number(val);
 
                 QString style;
-
                 //setto colore del numero
                 if(initial_state[c][d]){
                     style = "QLineEdit { color: blue }";
@@ -398,10 +372,10 @@ void Sudoku::set_content(QVector<QVector<int>> board)
     //sfondo rosso per settori con duplicati
     for(int c = 0; c < 9; c++){
         if(!check_array(get_row(board,c)))
-            set_background_row(c,true);
+            set_red_background_row(c);
         if(!check_array(get_col(board,c)))
-            set_background_col(c,true);
+            set_red_background_col(c);
         if(!check_array(get_sect(board,c+1)))
-            set_background_sect(c+1,true);
+            set_red_background_sect(c+1);
     }
 }

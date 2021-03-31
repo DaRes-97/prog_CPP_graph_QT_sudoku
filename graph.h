@@ -106,7 +106,7 @@ private:
 		@param node identificativo del nodo
 		@return c indice (IDX) del nodo
 	*/
-	const idxtype indexof(const nodetype node) const
+	const idxtype index_of(const nodetype node) const
 	{
 		for(int c = 0; c < _len; c++){
 			if(_node[c] == node)
@@ -220,7 +220,7 @@ public:
 	*/
 	const bool exists(const nodetype node) const
 	{
-		int idx = indexof(node);
+		int idx = index_of(node);
 
 		if(idx == _len){
 			return false;
@@ -242,8 +242,8 @@ public:
 	const bool has_edge(const nodetype src, const nodetype dst) const
 	{
 		if(exists(src) && exists(dst)){
-			idxtype idx1 = indexof(src);
-			idxtype idx2 = indexof(dst);
+			idxtype idx1 = index_of(src);
+			idxtype idx2 = index_of(dst);
 
 			bool res = _arch[idx1][idx2];
 			return res;
@@ -350,8 +350,8 @@ public:
 		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
 
-		idxtype idx1 = indexof(src);
-		idxtype idx2 = indexof(dst);
+		idxtype idx1 = index_of(src);
+		idxtype idx2 = index_of(dst);
 
 		if(_arch[idx1][idx2])
 			throw logicexception("arco gia inserito!", 4);
@@ -382,7 +382,7 @@ public:
 			throw logicexception("nodo non presente!", 3);
 
 		//indice nodo da eliminare
-		idxtype idx = indexof(node);
+		idxtype idx = index_of(node);
 
 		//puntatori ai vecchi dati
 		nodetype* node_temp = _node;
@@ -438,8 +438,8 @@ public:
 		if(!exists(src) || !exists(dst))
 			throw logicexception("uno dei nodi specificati non esiste!", 2);
 
-		idxtype idx1 = indexof(src);
-		idxtype idx2 = indexof(dst);
+		idxtype idx1 = index_of(src);
+		idxtype idx2 = index_of(dst);
 
 		if(!_arch[idx1][idx2])
 			throw logicexception("arco non presente!", 3);
@@ -489,7 +489,7 @@ public:
 		@brief stampa del grafo
 
 		la funzione si occupa di stampare la
-		composizione de grafo su std::out,
+		composizione del grafo su std::out,
 		mostrando i nodi e gli archi attivi
 	*/
 	void print()

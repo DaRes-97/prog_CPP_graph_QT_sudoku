@@ -298,6 +298,7 @@ int main()
 	test_operators<custom>(arr_custom);
 	test_operators<double>(arr_double);
 
+	//array modificati per test iteratori
 	double arr_double_final[LENGTH_2] = {2.4, 5.1, 8.5, 4.4, 9.6};
 	char arr_char_final[LENGTH_2] = {'b', 'c', 'e', 'f', 'g'};
 	custom arr_custom_final[LENGTH_2] = {{"mauro","garli"}, {"giacomo","lundini"},

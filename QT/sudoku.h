@@ -52,13 +52,13 @@ private:
     int correct_box_index(int idx);
 
     QVector<int> get_col(QVector<QVector<int>> board, int col);
-    void set_background_col(int col, bool isred);
+    void set_red_background_col(int col);
 
     QVector<int> get_row(QVector<QVector<int>> board, int row);
-    void set_background_row(int row, bool isred);
+    void set_red_background_row(int row);
 
     QVector<int> get_sect(QVector<QVector<int>> board, int sect);
-    void set_background_sect(int sect, bool isred);
+    void set_red_background_sect(int sect);
 
     bool is_board_full(QVector<QVector<int>> board);
     bool check_array(QVector<int> arr);

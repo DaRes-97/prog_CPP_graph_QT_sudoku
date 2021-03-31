@@ -14,13 +14,13 @@ Il grafo è stato implementato tramite **array dinamici**:
 
 ​		`unsigned int _len`	indicatore dimensione degli array
 
---> con *T* dato generico
+→ con `T` dato generico
 
 ### COSTRUTTORI
 
-`graph(T node)`:	il costruttore principale prende in ingresso un elemento di tipo *T*  ed inizializza gli array a dimensione unitaria, inserendo tale elemento.
+`graph(T node)`:	il costruttore principale prende in ingresso un elemento di tipo `T`  ed inizializza gli array a dimensione unitaria, inserendo tale elemento.
 
-- la cella `_node[IDX]` conterrà il dato T all'indice *IDX*. L'indice *IDX* funziona anche da identificatore interno, per quanto riguarda gli archi
+- la cella `_node[IDX]` conterrà il nodo di tipo `T` all'indice *IDX*. L'indice *IDX* funziona anche da identificatore interno, per quanto riguarda gli archi
 
 - i nodi vengono aggiunti tramite la funzione `add(T node)`, e rimossi tramite `remove(T node)`
 
@@ -35,7 +35,7 @@ L'array viene riempito in modo sequenziale, creando di volta in volta degli arra
 
 supponiamo ora che voglia rimuovere l'elemento *name3*, allora invocherò la funzione `remove(name3)`
 
-- tramite la funzione interna `indexof(T node)`, il programma risale all'*IDX* relativo alla variabile *name3* e ricrea gli array di supporto escludendo la cella relativa
+- tramite la funzione interna `index_of(T node)`, il programma risale all'*IDX* relativo alla variabile *name3* e ricrea gli array di supporto escludendo la cella relativa
 
 |   IDX    |   0   |   1   |   2   |   3   |
 | :------: | :---: | :---: | :---: | :---: |
@@ -54,9 +54,7 @@ Inizialmente, la matrice si presenta in questo modo:
 |    **2**    | false | false | false | false |
 |    **3**    | false | false | false | false |
 
-tramite i metodi `add(T src, T dst)` e `remove(T src, T dst)`, vengono settati gli archi orientati tra i due nodi specificati, in cui *src* è il nodo di partenza e *dst* è il nodo di arrivo
-
-anche qui la funzione `indexof(T node)` si occupa di ritornare l'*IDX* dei due nodi dato il loro nome, previa verifica di esistenza degli stessi
+tramite i metodi `add(T src, T dst)` e `remove(T src, T dst)`, vengono settati gli archi orientati tra i due nodi specificati, in cui *src* è il nodo di partenza e *dst* è il nodo di arrivo.
 
 per esempio, se volessi settare un arco tra *name2* e *name4*:
 
@@ -91,7 +89,7 @@ Durante l'aggiunta o la rimozione di nodi, vengono generate delle eccezioni nei 
 - si vuole eliminare un nodo quando il **grafo è vuoto** (CODICE 1)
 - si vuole aggiungere un arco tra **uno o due nodi non inizializzati** (CODICE 2)
 
-in tal caso vengono generate delle *logicexception* della gerarchia standard delle eccezioni, con i codici sopra esposti
+In tal caso vengono generate delle *logicexception* della gerarchia standard delle eccezioni, con i codici sopra esposti
 
 ### EXISTS/HAS_EDGE
 
@@ -103,11 +101,11 @@ come da specifica:
 
 ### NUM_NODI/NUM_ARCHI
 
-i metodi `num_nodi()` e `num_archi()` ritornano rispettivamente il numero di nodi e di archi presenti nel grafo, andando a contare rispettivamente il numero di celle dell'array e il numero di celle settate a true della matrice di adiacenza
+i metodi `num_nodi()` e `num_archi()` ritornano rispettivamente il numero di nodi e di archi presenti nel grafo, andando a contare rispettivamente il numero di celle dell'array e il numero di celle settate a *true* della matrice di adiacenza
 
 ### EQUALS
 
-il metodo `equals(graph<T> other)`verifica l'uguaglianza del grafo con *other*, verificando che
+il metodo `equals(graph<T> other)`verifica l'uguaglianza del grafo con `other`, verificando che
 
 - i due grafi contengano gli stessi nodi
 - tali nodi siano collegati con gli stessi archi
@@ -127,7 +125,7 @@ un esempio di output:
 
 ### ITERATORI
 
-come da specifica, è stato implementato un *const_iterator* di tipo *forward* che itera sull'insieme degli identificativi dei nodi, utilizzando come puntatore:
+come da specifica, è stato implementato un `const_iterator` di tipo *forward* che itera sull'insieme degli identificativi dei nodi, utilizzando come puntatore:
 
 ​	`const T *ptr_node`: puntatore all'array degli identificativi dei nodi
 
@@ -154,7 +152,7 @@ Se la griglia finale risulta **corretta**, appare un messaggio della riuscita de
 
 
 
-In caso di **errori** nella risoluzione, il sistema si blocca e vengono evidenziati i settori di gioco che presentano duplicati:
+Nel caso in cui il Sudoku **non fosse risolvibile**, il sistema si blocca e vengono evidenziati, se presenti, i settori di gioco che presentano duplicati:
 
 ![](https://drive.google.com/uc?id=1w_aMP_1I1m5pDJp139rX8hTI7JnOCqsC)
 
