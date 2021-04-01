@@ -63,7 +63,7 @@ per esempio, se volessi settare un arco tra *name2* e *name4*:
 | :------: | :---: | :---: | :---: | :---: |
 | **node** | name1 | name2 | name4 | name5 |
 
-➔ `indexof(name2) == 1`, `indexof(name4) == 2`
+➔ `index_of(name2) == 1`, `index_of(name4) == 2`
 
 
 | 🠗IDX1/IDX2🠖 |   0   |   1   |    2     |   3   |
