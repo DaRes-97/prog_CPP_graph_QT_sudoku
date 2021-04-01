@@ -3,6 +3,9 @@
 	Progetto C++ - GRAPH
 */
 
+/**
+	@file graph.h
+*/
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -10,20 +13,41 @@
 #include <cassert> //assert
 #include <iostream> // std::io
 #include <algorithm> // std::swap
-#include "graphexception.h" //gestore eccezioni
 
 /**
-	@file graph.h
+	@class graphexception
 
-	@brief dichiarazione della classe graph
+	@brief classe che implementa il gestore eccezioni
 */
+class graphexception : public std::logic_error
+{
+	int _value;
+public:
+
+	/**
+        @brief costruttore eccezione
+
+		ERROR CODES:
+
+			1 = grafo vuoto
+			2 = uno dei nodi specificati non esiste
+			3 = nodo/arco non esistente
+			4 = nodo/arco già inserito
+	*/
+	graphexception(const std::string &message, int value) : std::logic_error(message), _value(value) {}
+
+	int get_value(void) const
+	{
+		return _value;
+	}
+};
 
 /**
 	@class graph
 
 	@brief classe che implementa il grafo
 */
-template<typename T>
+template<typename T, typename Funct>
 class graph
 {
 private:
@@ -90,7 +114,7 @@ private:
 	/**
 		@brief funzione di swap
 	*/
-	void swap(graph<nodetype> &other)
+	void swap(graph<nodetype,Funct> &other)
 	{
 		std::swap(this->_node,other._node);
 		std::swap(this->_arch,other._arch);
@@ -108,8 +132,9 @@ private:
 	*/
 	const idxtype index_of(const nodetype node) const
 	{
+        Funct compare;
 		for(int c = 0; c < _len; c++){
-			if(_node[c] == node)
+			if(compare(_node[c],node))
 				return c;
 		}
 
@@ -170,7 +195,7 @@ public:
 
 		@param other graph da copiare
 	*/
-	graph(const graph<nodetype> &other) : _len(0), _node(nullptr), _arch(nullptr)
+	graph(const graph<nodetype,Funct> &other) : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		try{
 			init_vars(other._len);
@@ -261,7 +286,7 @@ public:
 
 		@param other graph da confrontare con this
 	*/
-	const bool equals(const graph<nodetype> &other) const
+	const bool equals(const graph<nodetype,Funct> &other) const
 	{
 
 		if(num_nodes() != other.num_nodes() || //stesso num di nodi
@@ -296,12 +321,12 @@ public:
  		corretta e copia i dati del vecchio grafo
 
 		@param node nome del nuovo nodo
-		@throws logicexception nodo già inserito (4)
+		@throws graphexception nodo già inserito (4)
 	*/
 	void add(nodetype node)
 	{
 		if(exists(node)) //nodo già inserito
-			throw logicexception("nodo gia inserito!", 4);
+			throw graphexception("nodo gia inserito!", 4);
 
 		if(_len == 0){ //graph vuoto
 
@@ -342,19 +367,19 @@ public:
 
 		@param src identificativo nodo di partenza
 		@param dst identificativo nodo di arrivo
-		@throws logicexception uno dei nodi non esiste (2)
-		@throws logicexception arco già inserito (4)
+		@throws graphexception uno dei nodi non esiste (2)
+		@throws graphexception arco già inserito (4)
 	*/
 	void add(nodetype src, nodetype dst)
 	{
 		if(!exists(src) || !exists(dst))
-			throw logicexception("uno dei nodi specificati non esiste!", 2);
+			throw graphexception("uno dei nodi specificati non esiste!", 2);
 
 		idxtype idx1 = index_of(src);
 		idxtype idx2 = index_of(dst);
 
 		if(_arch[idx1][idx2])
-			throw logicexception("arco gia inserito!", 4);
+			throw graphexception("arco gia inserito!", 4);
 
 		_arch[idx1][idx2] = true;
 
@@ -371,15 +396,15 @@ public:
 		della validità del nodo inserito come parametro
 
 		@param node identificativo del nodo da rimuovere
-		@throws logicexception grafo vuoto (1)
-		@throws logicexception nodo non presente (3)
+		@throws graphexception grafo vuoto (1)
+		@throws graphexception nodo non presente (3)
 	*/
 	void remove(nodetype node)
 	{
 		if(_len == 0) //grafo vuoto
-			throw logicexception("grafo vuoto!", 1);
+			throw graphexception("grafo vuoto!", 1);
 		if(!exists(node)) // nodo non presente
-			throw logicexception("nodo non presente!", 3);
+			throw graphexception("nodo non presente!", 3);
 
 		//indice nodo da eliminare
 		idxtype idx = index_of(node);
@@ -430,19 +455,19 @@ public:
 
 		@param src identificativo nodo di partenza
 		@param dst identificativo nodo di arrivo
-		@throws logicexception uno dei nodi non esiste (2)
-		@throws logicexception arco non presente (3)
+		@throws graphexception uno dei nodi non esiste (2)
+		@throws graphexception arco non presente (3)
 	*/
 	void remove(nodetype src, nodetype dst)
 	{
 		if(!exists(src) || !exists(dst))
-			throw logicexception("uno dei nodi specificati non esiste!", 2);
+			throw graphexception("uno dei nodi specificati non esiste!", 2);
 
 		idxtype idx1 = index_of(src);
 		idxtype idx2 = index_of(dst);
 
 		if(!_arch[idx1][idx2])
-			throw logicexception("arco non presente!", 3);
+			throw graphexception("arco non presente!", 3);
 
 		_arch[idx1][idx2] = false;
 
@@ -506,7 +531,7 @@ public:
 		@param other graph da copiare
 		@return reference a graph<nodetype>
 	*/
-	graph& operator=(const graph<nodetype> &other)
+	graph& operator=(const graph<nodetype,Funct> &other)
 	{
 		if(&other != this){ //controllo auto-assegnamento
 			graph tmp(other);
@@ -531,7 +556,7 @@ public:
 
 		@return reference allo stream di output
 	*/
-	friend std::ostream& operator<<(std::ostream &os, const graph<nodetype> &g) {
+	friend std::ostream& operator<<(std::ostream &os, const graph<nodetype,Funct> &g) {
 
 		os << "<node,idx>: ";
 		for(idxtype c = 0; c < g._len; c++){
@@ -638,35 +663,5 @@ public:
 		return const_iterator(_node+_len);
 	}
 };
-
-/**
-	@brief ridefinizione operatore di uguaglianza
-
-	ridefinizione dell' operatore di uguaglianza tra due 
-	graph basato sulla funzione equals()
-
-	@param lg graph di sx
-	@param rg graph di dx
-	@return responso della funzione
-*/
-template <typename U>
-bool operator==(const graph<U>& lg, const graph<U>& rg){
-	return lg.equals(rg);
-}
-
-/**
-	@brief ridefinizione operatore di disuguaglianza
-
-	ridefinizione dell' operatore di disuguaglianza tra due 
-	graph basato sulla funzione equals()
-
-	@param lg graph di sx
-	@param rg graph di dx
-	@return responso della funzione
-*/
-template <typename U>
-bool operator!=(const graph<U>& lg, const graph<U>& rg){
-	return !lg.equals(rg);
-}
 
 #endif
