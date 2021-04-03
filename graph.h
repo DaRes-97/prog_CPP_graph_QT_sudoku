@@ -25,14 +25,13 @@ class graphexception : public std::logic_error
 public:
 
 	/**
-        @brief costruttore eccezione
+        @brief costruttore eccezione di tipo logic
 
 		ERROR CODES:
-
-			1 = grafo vuoto
-			2 = uno dei nodi specificati non esiste
-			3 = nodo/arco non esistente
-			4 = nodo/arco già inserito
+        1 = grafo vuoto
+        2 = uno dei nodi specificati non esiste
+        3 = nodo/arco non esistente
+        4 = nodo/arco già inserito
 	*/
 	graphexception(const std::string &message, int value) : std::logic_error(message), _value(value) {}
 
