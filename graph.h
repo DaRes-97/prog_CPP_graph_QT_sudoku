@@ -129,7 +129,7 @@ private:
 		@param node identificativo del nodo
 		@return c indice (IDX) del nodo
 	*/
-	const idxtype index_of(const nodetype node) const
+	idxtype index_of(const nodetype &node) const
 	{
         Funct compare;
 		for(int c = 0; c < _len; c++){
@@ -242,7 +242,7 @@ public:
 		@param node identificativo del nodo
 		@return res risultato della verifica
 	*/
-	const bool exists(const nodetype node) const
+	bool exists(const nodetype &node) const
 	{
 		int idx = index_of(node);
 
@@ -263,7 +263,7 @@ public:
 		@param dst identificativo nodo di arrivo
 		@return res risultato della verifica
 	*/
-	const bool has_edge(const nodetype src, const nodetype dst) const
+	bool has_edge(const nodetype &src, const nodetype &dst) const
 	{
 		if(exists(src) && exists(dst)){
 			idxtype idx1 = index_of(src);
@@ -285,7 +285,7 @@ public:
 
 		@param other graph da confrontare con this
 	*/
-	const bool equals(const graph<nodetype,Funct> &other) const
+	bool equals(const graph<nodetype,Funct> &other) const
 	{
 
 		if(num_nodes() != other.num_nodes() || //stesso num di nodi
@@ -322,7 +322,7 @@ public:
 		@param node nome del nuovo nodo
 		@throws graphexception nodo già inserito (4)
 	*/
-	void add(nodetype node)
+	void add(const nodetype &node)
 	{
 		if(exists(node)) //nodo già inserito
 			throw graphexception("nodo gia inserito!", 4);
@@ -369,7 +369,7 @@ public:
 		@throws graphexception uno dei nodi non esiste (2)
 		@throws graphexception arco già inserito (4)
 	*/
-	void add(nodetype src, nodetype dst)
+	void add(const nodetype &src, const nodetype &dst)
 	{
 		if(!exists(src) || !exists(dst))
 			throw graphexception("uno dei nodi specificati non esiste!", 2);
@@ -483,7 +483,7 @@ public:
 
 		@return _len numero di nodi nel grafo
 	*/
-	const idxtype num_nodes() const
+	idxtype num_nodes() const
 	{
 		return _len;
 	}
@@ -496,7 +496,7 @@ public:
 
 		@return count numero di archi nel grafo
 	*/
-	const idxtype num_arches() const
+	idxtype num_arches() const
 	{
 		idxtype count = 0;
 		for(idxtype c = 0; c < _len; c++){
