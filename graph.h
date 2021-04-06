@@ -27,7 +27,7 @@ public:
 	/**
         @brief costruttore eccezione di tipo logic
 
-		ERROR CODES:
+	ERROR CODES:
         1 = grafo vuoto
         2 = uno dei nodi specificati non esiste
         3 = nodo/arco non esistente
@@ -52,7 +52,7 @@ class graph
 private:
 
 	typedef T nodetype;
-    typedef F functype;
+    	typedef F functype;
 	typedef unsigned int idxtype;
 
 	idxtype _len; ///< dimensione degli array
@@ -586,9 +586,9 @@ public:
 
 	public:
 		typedef std::forward_iterator_tag	iterator_category;
-		typedef T							value_type;
-		typedef const nodetype*				pointer;
-		typedef const nodetype&				reference;
+		typedef T				value_type;
+		typedef const nodetype*			pointer;
+		typedef const nodetype&			reference;
 
 
 		const_iterator() : ptr_node(nullptr) {}
