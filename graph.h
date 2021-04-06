@@ -394,7 +394,7 @@ public:
 		if(_len == 0) //grafo vuoto
 			throw graphexception("grafo vuoto!");
 		if(!exists(node)) // nodo non presente
-			throw graphexception("nodo non presente!";
+			throw graphexception("nodo non presente!");
 
 		//indice nodo da eliminare
 		idxtype idx = index_of(node);
