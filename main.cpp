@@ -184,7 +184,7 @@ void test_equals(const U arr[])
 	g2.add(arr[1],arr[4]);
 	g2.add(arr[2],arr[2]);
 
-	// test equals con ID diversi ma 
+	// test equals con ID diversi ma
 	// archi e nodi uguali
 	assert(g1.equals(g2));
 
@@ -227,17 +227,20 @@ void test_utils(const U arr[])
 	assert(g2.num_arches() == 1);
 
 	//grafo con diversi elementi
-	g2.add(arr[1]);
+    g2.add(arr[1]);
 	g2.add(arr[2]);
 	g2.add(arr[4]);
-	g2.add(arr[2],arr[4]);
+	g2.add(arr[0],arr[4]);
 
 	assert(g2.exists(arr[0]));
 	assert(g2.exists(arr[1]));
 	assert(g2.num_nodes() == 4);
 	assert(g2.num_arches() == 2);
 
-	g2.add(arr[4],arr[2]);
+    g2.add(arr[1],arr[4]);
+    g2.add(arr[2],arr[4]);
+    g2.add(arr[4],arr[2]);
+    g2.add(arr[2],arr[0]);
 
 	//test print visuale
 	g2.print();

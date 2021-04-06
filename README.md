@@ -22,9 +22,6 @@ Il grafo è stato implementato tramite **array dinamici**:
 
 - la cella `_node[IDX]` conterrà il nodo di tipo `T` all'indice *IDX*. L'indice *IDX* funziona anche da identificatore interno, per quanto riguarda gli archi
 
-- i nodi vengono aggiunti tramite la funzione `add(T node)`, e rimossi tramite `remove(T node)`
-
-
 ### AGGIUNTA/RIMOZIONE DI NODI
 
 L'array viene riempito in modo sequenziale, creando di volta in volta degli array di supporto di dimensioni maggiori e copiando i dati dagli array precedenti
@@ -105,7 +102,7 @@ i metodi `num_nodi()` e `num_archi()` ritornano rispettivamente il numero di nod
 
 ### EQUALS
 
-il metodo `equals(graph<T> other)`verifica l'uguaglianza del grafo con `other`, verificando che
+il metodo `equals(graph<T,F> other)`verifica l'uguaglianza del grafo con `other`, verificando che
 
 - i due grafi contengano gli stessi nodi
 - tali nodi siano collegati con gli stessi archi
@@ -121,7 +118,11 @@ Ai fini del controllo, **non conta l'ordine** dei nomi nelle celle degli array
 
 un esempio di output:
 
-![](https://drive.google.com/uc?id=1EdUMJgk6XgMskG9rBsHwLktEacjiD03Q)
+![](https://drive.google.com/uc?id=1VQ8vwBJyTRUp3y2j0IhwNj9wKjxM6eMq)
+
+corrispondente al grafo:
+
+![](https://drive.google.com/uc?id=1DtdD6M4YK_C1kpGI7vdGF9v4_uNLDeqd)
 
 ### ITERATORI
 

@@ -46,12 +46,13 @@ public:
 
 	@brief classe che implementa il grafo
 */
-template<typename T, typename Funct>
+template<typename T, typename F>
 class graph
 {
 private:
 
 	typedef T nodetype;
+    typedef F functype;
 	typedef unsigned int idxtype;
 
 	idxtype _len; ///< dimensione degli array
@@ -113,7 +114,7 @@ private:
 	/**
 		@brief funzione di swap
 	*/
-	void swap(graph<nodetype,Funct> &other)
+	void swap(graph<nodetype,functype> &other)
 	{
 		std::swap(this->_node,other._node);
 		std::swap(this->_arch,other._arch);
@@ -131,7 +132,7 @@ private:
 	*/
 	idxtype index_of(const nodetype &node) const
 	{
-        Funct compare;
+        functype compare;
 		for(int c = 0; c < _len; c++){
 			if(compare(_node[c],node))
 				return c;
@@ -194,7 +195,7 @@ public:
 
 		@param other graph da copiare
 	*/
-	graph(const graph<nodetype,Funct> &other) : _len(0), _node(nullptr), _arch(nullptr)
+	graph(const graph<nodetype,functype> &other) : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		try{
 			init_vars(other._len);
@@ -285,7 +286,7 @@ public:
 
 		@param other graph da confrontare con this
 	*/
-	bool equals(const graph<nodetype,Funct> &other) const
+	bool equals(const graph<nodetype,functype> &other) const
 	{
 
 		if(num_nodes() != other.num_nodes() || //stesso num di nodi
@@ -313,7 +314,7 @@ public:
 		@brief aggiunta di un nodo
 
 		la funzione si occupa di aggiungere un nodo
-		al grafo. se il grafo non è ancora stato 
+		al grafo. se il grafo non è ancora stato
 		inizializzato lo inizializza ed aggiunge il
 		nodo, se il grafo è già stato inizializzato
 		crea un grafo ex novo della dimensione
@@ -530,7 +531,7 @@ public:
 		@param other graph da copiare
 		@return reference a graph<nodetype>
 	*/
-	graph& operator=(const graph<nodetype,Funct> &other)
+	graph& operator=(const graph<nodetype,functype> &other)
 	{
 		if(&other != this){ //controllo auto-assegnamento
 			graph tmp(other);
@@ -555,7 +556,7 @@ public:
 
 		@return reference allo stream di output
 	*/
-	friend std::ostream& operator<<(std::ostream &os, const graph<nodetype,Funct> &g) {
+	friend std::ostream& operator<<(std::ostream &os, const graph<nodetype,functype> &g) {
 
 		os << "<node,idx>: ";
 		for(idxtype c = 0; c < g._len; c++){
@@ -589,9 +590,9 @@ public:
 		typedef const nodetype*				pointer;
 		typedef const nodetype&				reference;
 
-	
+
 		const_iterator() : ptr_node(nullptr) {}
-		
+
 		const_iterator(const const_iterator &other) : ptr_node(other.ptr_node) {}
 
 		const_iterator& operator=(const const_iterator &other)
@@ -613,7 +614,7 @@ public:
 		{
 			return ptr_node;
 		}
-		
+
 		// Operatore di iterazione post-incremento
 		const_iterator operator++(int)
 		{
@@ -634,7 +635,7 @@ public:
 		{
 			return (ptr_node == other.ptr_node);
 		}
-		
+
 		// Diversita'
 		bool operator!=(const const_iterator &other) const
 		{
@@ -647,7 +648,7 @@ public:
 
 		// Costruttore privato di inizializzazione usato dalla classe container
 		const_iterator(const nodetype* nm) : ptr_node(nm) {}
-		
+
 	}; // classe const_iterator
 
 	// Ritorna l'iteratore all'inizio della sequenza dati
@@ -655,7 +656,7 @@ public:
 	{
 		return const_iterator(_node);
 	}
-	
+
 	// Ritorna l'iteratore alla fine della sequenza dati
 	const_iterator end() const
 	{
