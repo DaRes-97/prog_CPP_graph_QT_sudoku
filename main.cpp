@@ -227,7 +227,7 @@ void test_utils(const U arr[])
 	assert(g2.num_arches() == 1);
 
 	//grafo con diversi elementi
-    g2.add(arr[1]);
+    	g2.add(arr[1]);
 	g2.add(arr[2]);
 	g2.add(arr[4]);
 	g2.add(arr[0],arr[4]);
@@ -237,10 +237,10 @@ void test_utils(const U arr[])
 	assert(g2.num_nodes() == 4);
 	assert(g2.num_arches() == 2);
 
-    g2.add(arr[1],arr[4]);
-    g2.add(arr[2],arr[4]);
-    g2.add(arr[4],arr[2]);
-    g2.add(arr[2],arr[0]);
+    	g2.add(arr[1],arr[4]);
+    	g2.add(arr[2],arr[4]);
+    	g2.add(arr[4],arr[2]);
+    	g2.add(arr[2],arr[0]);
 
 	//test print visuale
 	g2.print();
@@ -299,7 +299,7 @@ void test_iterators(const U arr[], const U arr_final[])
 	//array passato in ingresso
 	typename graph<U,Funct>::const_iterator it1, ite1;
 	unsigned int index = 0;
-    Funct comp;
+    	Funct comp;
 
 	for(it1 = g1.begin(), ite1 = g1.end(); it1 != ite1; ++it1){
 		std::cout << *it1 << " <--> " << arr_final[index] << std::endl;
@@ -318,8 +318,8 @@ int main()
 	double arr_double[LENGTH] = {1.2, 2.4, 5.1, 5.1, 3.2, 8.5, 4.4, 1.2, 9.6, 2.6};
 	char arr_char[LENGTH] = {'a', 'b', 'c', 'c', 'd', 'e', 'f', 'a', 'g', 'o'};
 	custom arr_custom[LENGTH] = {{"mario", "lezzi"}, {"mauro","garli"}, {"giacomo","lundini"}, {"giacomo", "lundini"},
-								{"luigi","garli"}, {"luigi","vincenzi"}, {"filippo", "gurlomi"}, {"mario","lezzi"},
-								{"mario","gastelletti"},{"pedro","hernandez"}};
+				{"luigi","garli"}, {"luigi","vincenzi"}, {"filippo", "gurlomi"}, {"mario","lezzi"},
+				{"mario","gastelletti"},{"pedro","hernandez"}};
 
 	std::cout << "----->TEST COSTRUTTORI<-----" << std::endl;
 	test_constructors<char,compare_char>(arr_char);
@@ -350,8 +350,8 @@ int main()
 	double arr_double_final[LENGTH_2] = {2.4, 5.1, 8.5, 4.4, 9.6};
 	char arr_char_final[LENGTH_2] = {'b', 'c', 'e', 'f', 'g'};
 	custom arr_custom_final[LENGTH_2] = {{"mauro","garli"}, {"giacomo","lundini"},
-										{"luigi","vincenzi"}, {"filippo", "gurlomi"},
-										{"mario","gastelletti"}};
+					{"luigi","vincenzi"}, {"filippo", "gurlomi"},
+					{"mario","gastelletti"}};
 
 	std::cout << "----->TEST ITERATORS<-----" << std::endl;
 	test_iterators<char,compare_char>(arr_char,arr_char_final);
