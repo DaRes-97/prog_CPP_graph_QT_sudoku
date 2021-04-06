@@ -48,8 +48,8 @@ struct compare_char{
 struct compare_custom{
 
     bool operator()(custom sx, custom dx) const {
-        bool cond1 = sx.nome.compare(dx.nome) == 0;
-        bool cond2 = sx.cognome.compare(dx.cognome) == 0;
+    bool cond1 = sx.nome.compare(dx.nome) == 0;
+    bool cond2 = sx.cognome.compare(dx.cognome) == 0;
 
         return cond1 && cond2;
     }
@@ -237,10 +237,10 @@ void test_utils(const U arr[])
 	assert(g2.num_nodes() == 4);
 	assert(g2.num_arches() == 2);
 
-    	g2.add(arr[1],arr[4]);
-    	g2.add(arr[2],arr[4]);
-    	g2.add(arr[4],arr[2]);
-    	g2.add(arr[2],arr[0]);
+    g2.add(arr[1],arr[4]);
+    g2.add(arr[2],arr[4]);
+    g2.add(arr[4],arr[2]);
+    g2.add(arr[2],arr[0]);
 
 	//test print visuale
 	g2.print();

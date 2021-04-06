@@ -19,26 +19,16 @@
 
 	@brief classe che implementa il gestore eccezioni
 */
-class graphexception : public std::logic_error
+class graphexception : public std::runtime_error
 {
-	int _value;
+
 public:
 
 	/**
-        @brief costruttore eccezione di tipo logic
-
-	ERROR CODES:
-        1 = grafo vuoto
-        2 = uno dei nodi specificati non esiste
-        3 = nodo/arco non esistente
-        4 = nodo/arco già inserito
+        @brief costruttore eccezione
 	*/
-	graphexception(const std::string &message, int value) : std::logic_error(message), _value(value) {}
+	graphexception(const std::string &message) : std::runtime_error(message) {}
 
-	int get_value(void) const
-	{
-		return _value;
-	}
 };
 
 /**
@@ -321,12 +311,12 @@ public:
  		corretta e copia i dati del vecchio grafo
 
 		@param node nome del nuovo nodo
-		@throws graphexception nodo già inserito (4)
+		@throws graphexception nodo già inserito
 	*/
 	void add(const nodetype &node)
 	{
 		if(exists(node)) //nodo già inserito
-			throw graphexception("nodo gia inserito!", 4);
+			throw graphexception("nodo gia inserito!");
 
 		if(_len == 0){ //graph vuoto
 
@@ -367,19 +357,19 @@ public:
 
 		@param src identificativo nodo di partenza
 		@param dst identificativo nodo di arrivo
-		@throws graphexception uno dei nodi non esiste (2)
-		@throws graphexception arco già inserito (4)
+		@throws graphexception uno dei nodi non esiste
+		@throws graphexception arco già inserito
 	*/
 	void add(const nodetype &src, const nodetype &dst)
 	{
 		if(!exists(src) || !exists(dst))
-			throw graphexception("uno dei nodi specificati non esiste!", 2);
+			throw graphexception("uno dei nodi specificati non esiste!");
 
 		idxtype idx1 = index_of(src);
 		idxtype idx2 = index_of(dst);
 
 		if(_arch[idx1][idx2])
-			throw graphexception("arco gia inserito!", 4);
+			throw graphexception("arco gia inserito!");
 
 		_arch[idx1][idx2] = true;
 
@@ -396,15 +386,15 @@ public:
 		della validità del nodo inserito come parametro
 
 		@param node identificativo del nodo da rimuovere
-		@throws graphexception grafo vuoto (1)
-		@throws graphexception nodo non presente (3)
+		@throws graphexception grafo vuoto
+		@throws graphexception nodo non presente
 	*/
 	void remove(nodetype node)
 	{
 		if(_len == 0) //grafo vuoto
-			throw graphexception("grafo vuoto!", 1);
+			throw graphexception("grafo vuoto!");
 		if(!exists(node)) // nodo non presente
-			throw graphexception("nodo non presente!", 3);
+			throw graphexception("nodo non presente!";
 
 		//indice nodo da eliminare
 		idxtype idx = index_of(node);
@@ -455,19 +445,19 @@ public:
 
 		@param src identificativo nodo di partenza
 		@param dst identificativo nodo di arrivo
-		@throws graphexception uno dei nodi non esiste (2)
-		@throws graphexception arco non presente (3)
+		@throws graphexception uno dei nodi non esiste
+		@throws graphexception arco non presente
 	*/
 	void remove(nodetype src, nodetype dst)
 	{
 		if(!exists(src) || !exists(dst))
-			throw graphexception("uno dei nodi specificati non esiste!", 2);
+			throw graphexception("uno dei nodi specificati non esiste!");
 
 		idxtype idx1 = index_of(src);
 		idxtype idx2 = index_of(dst);
 
 		if(!_arch[idx1][idx2])
-			throw graphexception("arco non presente!", 3);
+			throw graphexception("arco non presente!");
 
 		_arch[idx1][idx2] = false;
 

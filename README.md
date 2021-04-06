@@ -81,12 +81,12 @@ stesso procedimento per la rimozione, settando la casella appropriata a *false*
 
 Durante l'aggiunta o la rimozione di nodi, vengono generate delle eccezioni nei seguenti casi:
 
-- si vuole aggiungere un **nodo/arco già esistente** (CODICE 4)
-- si vuole eliminare un **nodo/arco non presente** (CODICE 3)
-- si vuole eliminare un nodo quando il **grafo è vuoto** (CODICE 1)
-- si vuole aggiungere un arco tra **uno o due nodi non inizializzati** (CODICE 2)
+- si vuole aggiungere un **nodo/arco già esistente**
+- si vuole eliminare un **nodo/arco non presente**
+- si vuole eliminare un nodo quando il **grafo è vuoto**
+- si vuole aggiungere un arco tra **uno o due nodi non inizializzati**
 
-In tal caso vengono generate delle *logicexception* della gerarchia standard delle eccezioni, con i codici sopra esposti
+In tal caso vengono generate delle eccezioni di tipo *runtime_error*
 
 ### EXISTS/HAS_EDGE
 
@@ -122,7 +122,7 @@ un esempio di output:
 
 corrispondente al grafo:
 
-![](https://drive.google.com/uc?id=1DtdD6M4YK_C1kpGI7vdGF9v4_uNLDeqd)
+![](https://drive.google.com/uc?id=13__uWiwna5qmHO6Ut2mFCUqO9oIE-dnf)
 
 ### ITERATORI
 
