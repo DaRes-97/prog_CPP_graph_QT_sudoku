@@ -1,6 +1,5 @@
 CXXFLAGS = -std=c++0x
 
-
 main.exe: main.o 
 	g++ $(CXXFLAGS) main.o -o main.exe
 

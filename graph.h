@@ -41,9 +41,9 @@ class graph
 {
 private:
 
-	typedef T nodetype;
-    	typedef F functype;
-	typedef unsigned int idxtype;
+	typedef T nodetype; //tipo del nodo
+    typedef F functype; //tipo funtore confronto
+	typedef unsigned int idxtype; //tipo dimensione array
 
 	idxtype _len; ///< dimensione degli array
 	nodetype* _node; ///< array degli identificativi dei nodi
@@ -68,15 +68,24 @@ private:
 			return;
 		}
 
-		_node = new nodetype[len];
-		_arch = new bool*[len];
-		_len = len;
+		try{
+			_node = new nodetype[len];
+			_arch = new bool*[len];
+			_len = len;
 
-		for(idxtype c = 0; c < len; c++){
-			_arch[c] = new bool[len];
-			for(idxtype d = 0; d < len; d++){
-				_arch[c][d] = false;
+			for(idxtype c = 0; c < len; c++){
+				_arch[c] = new bool[len];
+				for(idxtype d = 0; d < len; d++){
+					_arch[c][d] = false;
+				}
 			}
+		} catch (...) {
+			//errore in allocazione memoria
+			destr_vars(_node, _arch, _len);
+			_node = nullptr;
+			_arch = nullptr;
+			_len = 0;
+			throw;
 		}
 	}
 
@@ -128,6 +137,7 @@ private:
 				return c;
 		}
 
+		//nodo non trovato
 		return _len;
 	}
 
@@ -163,9 +173,10 @@ public:
 	graph(nodetype node) : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		try{
-			init_vars(1);
-			_node[0] = node;
+			init_vars(1); //allocazione
+			_node[0] = node; //assegnamento
 		} catch(...){
+			//errore allocazione o assegnamento
 			destr_vars(_node, _arch, _len);
 			_node = nullptr;
 			_arch = nullptr;
@@ -188,8 +199,9 @@ public:
 	graph(const graph<nodetype,functype> &other) : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		try{
+			//allocazione
 			init_vars(other._len);
-
+			//assegnamento
 			for(idxtype c = 0; c < _len; c++){
 				_node[c] = other._node[c];
 				for(idxtype d = 0; d < _len; d++){
@@ -197,6 +209,7 @@ public:
 				}
 			}
 		} catch (...) {
+			//errore allocazione o assegnamento
 			destr_vars(_node, _arch, _len);
 			_node = nullptr;
 			_arch = nullptr;
@@ -318,30 +331,39 @@ public:
 		if(exists(node)) //nodo già inserito
 			throw graphexception("nodo gia inserito!");
 
-		if(_len == 0){ //graph vuoto
+		try{
+			if(_len == 0){ //graph vuoto
 
-			init_vars(1); // inizializzo la classe
-			_node[0] = node;
+				init_vars(1); //allocazione
+				_node[0] = node; //assegnamento
 
-		} else { //graph già inizializzato
+			} else { //graph già inizializzato
 
-			nodetype* node_temp = _node;
-			bool** arch_temp = _arch;
-			idxtype len_temp = _len;
+				nodetype* node_temp = _node;
+				bool** arch_temp = _arch;
+				idxtype len_temp = _len;
 
-			init_vars(len_temp+1); // reinizializzo la classe
-			_node[_len-1] = node;
+				init_vars(len_temp+1); //allocazione
+				_node[_len-1] = node; //assegnamento
 
-			//copio i vecchi dati sul nuovo grafo
-			for(idxtype c = 0; c < len_temp; c++){
-				_node[c] = node_temp[c];
-				for(idxtype d = 0; d < len_temp; d++){
-					_arch[c][d] = arch_temp[c][d];
+				//copio i vecchi dati sul nuovo grafo
+				for(idxtype c = 0; c < len_temp; c++){
+					_node[c] = node_temp[c];
+					for(idxtype d = 0; d < len_temp; d++){
+						_arch[c][d] = arch_temp[c][d];
+					}
 				}
-			}
 
-			//distruggo i vecchi dati
-			destr_vars(node_temp,arch_temp,len_temp);
+				//distruggo i vecchi dati
+				destr_vars(node_temp,arch_temp,len_temp);
+			}
+		} catch(...) {
+			// errore allocazione o assegnamento
+			destr_vars(_node, _arch, _len);
+			_node = nullptr;
+			_arch = nullptr;
+			_len = 0;
+			throw;
 		}
 
 		#ifndef NDEBUG
@@ -404,33 +426,41 @@ public:
 		bool** arch_temp = _arch;
 		idxtype len_temp = _len;
 
+		try{
+			//allocazione nuovi array
+			init_vars(len_temp-1);
 
-		//inizializzo nuovi array
-		init_vars(len_temp-1);
+			if(_len != 0){
+				//copio i vecchi dati
+				int row = 0;
+				int col = 0;
+				for(int c = 0; c < len_temp; c++){
+					col = 0;
+					if(c != idx){
+						_node[row] = node_temp[c];
 
-		if(_len != 0){
-			//copio i vecchi dati
-			int row = 0;
-			int col = 0;
-			for(int c = 0; c < len_temp; c++){
-				col = 0;
-				if(c != idx){
-					_node[row] = node_temp[c];
-
-					for(int d = 0; d < len_temp; d++){
-						if(d != idx){
-							_arch[row][col] = arch_temp[c][d];
-							col++;
+						for(int d = 0; d < len_temp; d++){
+							if(d != idx){
+								_arch[row][col] = arch_temp[c][d];
+								col++;
+							}
 						}
-					}
 
-					row++;
+						row++;
+					}
 				}
 			}
-		}
 
-		//distruggo i vecchi dati
-		destr_vars(node_temp,arch_temp,len_temp);
+			//distruggo i vecchi dati
+			destr_vars(node_temp,arch_temp,len_temp);
+		} catch(...) {
+			// errore allocazione o assegnamento
+			destr_vars(_node, _arch, _len);
+			_node = nullptr;
+			_arch = nullptr;
+			_len = 0;
+			throw;
+		}
 
 		#ifndef NDEBUG
 		std::cout << "nodo eliminato correttamente" << std::endl;
