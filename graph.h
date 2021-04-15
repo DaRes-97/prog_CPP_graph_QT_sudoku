@@ -41,12 +41,12 @@ class graph
 {
 private:
 
-	typedef T nodetype; //tipo del nodo
-    typedef F functype; //tipo funtore confronto
-	typedef unsigned int idxtype; //tipo dimensione array
+	typedef T value_type; //tipo del nodo
+    typedef F funct_type; //tipo funtore confronto
+	typedef unsigned int idx_type; //tipo dimensione array
 
-	idxtype _len; ///< dimensione degli array
-	nodetype* _node; ///< array degli identificativi dei nodi
+	idx_type _len; ///< dimensione degli array
+	value_type* _node; ///< array degli identificativi dei nodi
 	bool** _arch; ///< matrice di adiacenza
 
 	/**
@@ -58,7 +58,7 @@ private:
 
 		@param len lunghezza array
 	*/
-	inline void init_vars(idxtype len)
+	inline void init_vars(idx_type len)
 	{
 		if(len == 0){
 			_node = nullptr;
@@ -69,13 +69,13 @@ private:
 		}
 
 		try{
-			_node = new nodetype[len];
+			_node = new value_type[len];
 			_arch = new bool*[len];
 			_len = len;
 
-			for(idxtype c = 0; c < len; c++){
+			for(idx_type c = 0; c < len; c++){
 				_arch[c] = new bool[len];
-				for(idxtype d = 0; d < len; d++){
+				for(idx_type d = 0; d < len; d++){
 					_arch[c][d] = false;
 				}
 			}
@@ -100,11 +100,11 @@ private:
 		@param arch matrice di adiacenza
 		@param len lunghezza array e matrice
 	*/
-	inline void destr_vars(nodetype* node, bool** arch, idxtype len)
+	inline void destr_vars(value_type* node, bool** arch, idx_type len)
 	{
 		delete[] node;
 
-		for(idxtype c = 0; c < len; c++){
+		for(idx_type c = 0; c < len; c++){
 			delete[] arch[c];
 		}
 		delete[] arch;
@@ -113,7 +113,7 @@ private:
 	/**
 		@brief funzione di swap
 	*/
-	void swap(graph<nodetype,functype> &other)
+	void swap(graph<value_type,funct_type> &other)
 	{
 		std::swap(this->_node,other._node);
 		std::swap(this->_arch,other._arch);
@@ -129,9 +129,9 @@ private:
 		@param node identificativo del nodo
 		@return c indice (IDX) del nodo
 	*/
-	idxtype index_of(const nodetype &node) const
+	idx_type index_of(const value_type &node) const
 	{
-        functype compare;
+        funct_type compare;
 		for(int c = 0; c < _len; c++){
 			if(compare(_node[c],node))
 				return c;
@@ -170,19 +170,10 @@ public:
 
 		@post _len == 1
 	*/
-	graph(nodetype node) : _len(0), _node(nullptr), _arch(nullptr)
+	explicit graph(value_type node) : _len(0), _node(nullptr), _arch(nullptr)
 	{
-		try{
-			init_vars(1); //allocazione
-			_node[0] = node; //assegnamento
-		} catch(...){
-			//errore allocazione o assegnamento
-			destr_vars(_node, _arch, _len);
-			_node = nullptr;
-			_arch = nullptr;
-			_len = 0;
-			throw;
-		}
+		init_vars(1); //allocazione
+		_node[0] = node; //assegnamento
 
 		#ifndef NDEBUG
 		std::cout << "inizializzato grafo 1 elemento" << std::endl;
@@ -196,25 +187,16 @@ public:
 
 		@param other graph da copiare
 	*/
-	graph(const graph<nodetype,functype> &other) : _len(0), _node(nullptr), _arch(nullptr)
+	graph(const graph<value_type,funct_type> &other) : _len(0), _node(nullptr), _arch(nullptr)
 	{
-		try{
-			//allocazione
-			init_vars(other._len);
-			//assegnamento
-			for(idxtype c = 0; c < _len; c++){
-				_node[c] = other._node[c];
-				for(idxtype d = 0; d < _len; d++){
-					_arch[c][d] = other._arch[c][d];
-				}
+		//allocazione
+		init_vars(other._len);
+		//assegnamento
+		for(idx_type c = 0; c < _len; c++){
+			_node[c] = other._node[c];
+			for(idx_type d = 0; d < _len; d++){
+				_arch[c][d] = other._arch[c][d];
 			}
-		} catch (...) {
-			//errore allocazione o assegnamento
-			destr_vars(_node, _arch, _len);
-			_node = nullptr;
-			_arch = nullptr;
-			_len = 0;
-			throw;
 		}
 
 		#ifndef NDEBUG
@@ -246,7 +228,7 @@ public:
 		@param node identificativo del nodo
 		@return res risultato della verifica
 	*/
-	bool exists(const nodetype &node) const
+	bool exists(const value_type &node) const
 	{
 		int idx = index_of(node);
 
@@ -267,11 +249,11 @@ public:
 		@param dst identificativo nodo di arrivo
 		@return res risultato della verifica
 	*/
-	bool has_edge(const nodetype &src, const nodetype &dst) const
+	bool has_edge(const value_type &src, const value_type &dst) const
 	{
 		if(exists(src) && exists(dst)){
-			idxtype idx1 = index_of(src);
-			idxtype idx2 = index_of(dst);
+			idx_type idx1 = index_of(src);
+			idx_type idx2 = index_of(dst);
 
 			bool res = _arch[idx1][idx2];
 			return res;
@@ -289,7 +271,7 @@ public:
 
 		@param other graph da confrontare con this
 	*/
-	bool equals(const graph<nodetype,functype> &other) const
+	bool equals(const graph<value_type,funct_type> &other) const
 	{
 
 		if(num_nodes() != other.num_nodes() || //stesso num di nodi
@@ -298,11 +280,11 @@ public:
 			return false;
 		}
 
-		for(idxtype c = 0; c < _len; c++){
+		for(idx_type c = 0; c < _len; c++){
 			if(!other.exists(_node[c])) //stessi nodi
 				return false;
 
-			for(idxtype d = 0; d < _len; d++){
+			for(idx_type d = 0; d < _len; d++){
 				if(_arch[c][d]){
 					if(!other.has_edge(_node[c],_node[d])) // stessi archi
 						return false;
@@ -326,44 +308,35 @@ public:
 		@param node nome del nuovo nodo
 		@throws graphexception nodo già inserito
 	*/
-	void add(const nodetype &node)
+	void add(const value_type &node)
 	{
 		if(exists(node)) //nodo già inserito
 			throw graphexception("nodo gia inserito!");
 
-		try{
-			if(_len == 0){ //graph vuoto
+		if(_len == 0){ //graph vuoto
 
-				init_vars(1); //allocazione
-				_node[0] = node; //assegnamento
+			init_vars(1); //allocazione
+			_node[0] = node; //assegnamento
 
-			} else { //graph già inizializzato
+		} else { //graph già inizializzato
 
-				nodetype* node_temp = _node;
-				bool** arch_temp = _arch;
-				idxtype len_temp = _len;
+			value_type* node_temp = _node;
+			bool** arch_temp = _arch;
+			idx_type len_temp = _len;
 
-				init_vars(len_temp+1); //allocazione
-				_node[_len-1] = node; //assegnamento
+			init_vars(len_temp+1); //allocazione
+			_node[_len-1] = node; //assegnamento
 
-				//copio i vecchi dati sul nuovo grafo
-				for(idxtype c = 0; c < len_temp; c++){
-					_node[c] = node_temp[c];
-					for(idxtype d = 0; d < len_temp; d++){
-						_arch[c][d] = arch_temp[c][d];
-					}
+			//copio i vecchi dati sul nuovo grafo
+			for(idx_type c = 0; c < len_temp; c++){
+				_node[c] = node_temp[c];
+				for(idx_type d = 0; d < len_temp; d++){
+					_arch[c][d] = arch_temp[c][d];
 				}
-
-				//distruggo i vecchi dati
-				destr_vars(node_temp,arch_temp,len_temp);
 			}
-		} catch(...) {
-			// errore allocazione o assegnamento
-			destr_vars(_node, _arch, _len);
-			_node = nullptr;
-			_arch = nullptr;
-			_len = 0;
-			throw;
+
+			//distruggo i vecchi dati
+			destr_vars(node_temp,arch_temp,len_temp);
 		}
 
 		#ifndef NDEBUG
@@ -382,13 +355,13 @@ public:
 		@throws graphexception uno dei nodi non esiste
 		@throws graphexception arco già inserito
 	*/
-	void add(const nodetype &src, const nodetype &dst)
+	void add(const value_type &src, const value_type &dst)
 	{
 		if(!exists(src) || !exists(dst))
 			throw graphexception("uno dei nodi specificati non esiste!");
 
-		idxtype idx1 = index_of(src);
-		idxtype idx2 = index_of(dst);
+		idx_type idx1 = index_of(src);
+		idx_type idx2 = index_of(dst);
 
 		if(_arch[idx1][idx2])
 			throw graphexception("arco gia inserito!");
@@ -411,7 +384,7 @@ public:
 		@throws graphexception grafo vuoto
 		@throws graphexception nodo non presente
 	*/
-	void remove(nodetype node)
+	void remove(value_type node)
 	{
 		if(_len == 0) //grafo vuoto
 			throw graphexception("grafo vuoto!");
@@ -419,48 +392,39 @@ public:
 			throw graphexception("nodo non presente!");
 
 		//indice nodo da eliminare
-		idxtype idx = index_of(node);
+		idx_type idx = index_of(node);
 
 		//puntatori ai vecchi dati
-		nodetype* node_temp = _node;
+		value_type* node_temp = _node;
 		bool** arch_temp = _arch;
-		idxtype len_temp = _len;
+		idx_type len_temp = _len;
 
-		try{
-			//allocazione nuovi array
-			init_vars(len_temp-1);
+		//allocazione nuovi array
+		init_vars(len_temp-1);
 
-			if(_len != 0){
-				//copio i vecchi dati
-				int row = 0;
-				int col = 0;
-				for(int c = 0; c < len_temp; c++){
-					col = 0;
-					if(c != idx){
-						_node[row] = node_temp[c];
+		if(_len != 0){
+			//copio i vecchi dati
+			int row = 0;
+			int col = 0;
+			for(int c = 0; c < len_temp; c++){
+				col = 0;
+				if(c != idx){
+					_node[row] = node_temp[c];
 
-						for(int d = 0; d < len_temp; d++){
-							if(d != idx){
-								_arch[row][col] = arch_temp[c][d];
-								col++;
-							}
+					for(int d = 0; d < len_temp; d++){
+						if(d != idx){
+							_arch[row][col] = arch_temp[c][d];
+							col++;
 						}
-
-						row++;
 					}
+
+					row++;
 				}
 			}
-
-			//distruggo i vecchi dati
-			destr_vars(node_temp,arch_temp,len_temp);
-		} catch(...) {
-			// errore allocazione o assegnamento
-			destr_vars(_node, _arch, _len);
-			_node = nullptr;
-			_arch = nullptr;
-			_len = 0;
-			throw;
 		}
+
+		//distruggo i vecchi dati
+		destr_vars(node_temp,arch_temp,len_temp);
 
 		#ifndef NDEBUG
 		std::cout << "nodo eliminato correttamente" << std::endl;
@@ -478,13 +442,13 @@ public:
 		@throws graphexception uno dei nodi non esiste
 		@throws graphexception arco non presente
 	*/
-	void remove(nodetype src, nodetype dst)
+	void remove(value_type src, value_type dst)
 	{
 		if(!exists(src) || !exists(dst))
 			throw graphexception("uno dei nodi specificati non esiste!");
 
-		idxtype idx1 = index_of(src);
-		idxtype idx2 = index_of(dst);
+		idx_type idx1 = index_of(src);
+		idx_type idx2 = index_of(dst);
 
 		if(!_arch[idx1][idx2])
 			throw graphexception("arco non presente!");
@@ -504,7 +468,7 @@ public:
 
 		@return _len numero di nodi nel grafo
 	*/
-	idxtype num_nodes() const
+	idx_type num_nodes() const
 	{
 		return _len;
 	}
@@ -517,11 +481,11 @@ public:
 
 		@return count numero di archi nel grafo
 	*/
-	idxtype num_arches() const
+	idx_type num_arches() const
 	{
-		idxtype count = 0;
-		for(idxtype c = 0; c < _len; c++){
-			for(idxtype d = 0; d < _len; d++){
+		idx_type count = 0;
+		for(idx_type c = 0; c < _len; c++){
+			for(idx_type d = 0; d < _len; d++){
 				if(_arch[c][d])
 					count++;
 			}
@@ -549,9 +513,9 @@ public:
 		il contenuto di other in *this
 
 		@param other graph da copiare
-		@return reference a graph<nodetype>
+		@return reference a graph<value_type>
 	*/
-	graph& operator=(const graph<nodetype,functype> &other)
+	graph& operator=(const graph<value_type,funct_type> &other)
 	{
 		if(&other != this){ //controllo auto-assegnamento
 			graph tmp(other);
@@ -576,22 +540,22 @@ public:
 
 		@return reference allo stream di output
 	*/
-	friend std::ostream& operator<<(std::ostream &os, const graph<nodetype,functype> &g) {
+	friend std::ostream& operator<<(std::ostream &os, const graph<value_type,funct_type> &g) {
 
 		os << "<node,idx>: ";
-		for(idxtype c = 0; c < g._len; c++){
+		for(idx_type c = 0; c < g._len; c++){
 			os << "<" << g._node[c] << "," << c << ">, ";
 		}
 		os << "\n";
 
 		os << "adjacency matrix: " << "\n";
 		os << "   ";
-		for(idxtype c = 0; c < g._len; c++)
+		for(idx_type c = 0; c < g._len; c++)
 				os << c << "  ";
 		os << "\n";
-		for(idxtype c = 0; c < g._len; c++){
+		for(idx_type c = 0; c < g._len; c++){
 			os << c << "  ";
-			for(idxtype d = 0; d < g._len; d++){
+			for(idx_type d = 0; d < g._len; d++){
 				os << g._arch[c][d] << "  ";
 			}
 			os << "\n";
@@ -607,8 +571,8 @@ public:
 	public:
 		typedef std::forward_iterator_tag	iterator_category;
 		typedef T				value_type;
-		typedef const nodetype*			pointer;
-		typedef const nodetype&			reference;
+		typedef const value_type*			pointer;
+		typedef const value_type&			reference;
 
 
 		const_iterator() : ptr_node(nullptr) {}
@@ -667,7 +631,7 @@ public:
 		friend class graph;
 
 		// Costruttore privato di inizializzazione usato dalla classe container
-		const_iterator(const nodetype* nm) : ptr_node(nm) {}
+		const_iterator(const value_type* nm) : ptr_node(nm) {}
 
 	}; // classe const_iterator
 
