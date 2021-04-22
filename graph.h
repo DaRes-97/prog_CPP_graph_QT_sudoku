@@ -73,12 +73,18 @@ private:
 			_arch = new bool*[len];
 			_len = len;
 
+			//inizializzo matrice a null (safe)
+			for(int c = 0; c < _len; c++)
+				_arch[c] = nullptr;
+
+			//inizializzo matrice con valori false
 			for(idxtype c = 0; c < len; c++){
 				_arch[c] = new bool[len];
 				for(idxtype d = 0; d < len; d++){
 					_arch[c][d] = false;
 				}
 			}
+
 		} catch (...) {
 			//errore in allocazione memoria
 			destr_vars(_node, _arch, _len);
@@ -170,7 +176,7 @@ public:
 
 		@post _len == 1
 	*/
-	graph(nodetype node) : _len(0), _node(nullptr), _arch(nullptr)
+	explicit graph(nodetype node) : _len(0), _node(nullptr), _arch(nullptr)
 	{
 		try{
 			init_vars(1); //allocazione
@@ -331,38 +337,36 @@ public:
 		if(exists(node)) //nodo già inserito
 			throw graphexception("nodo gia inserito!");
 
+		nodetype* node_temp = _node;
+		bool** arch_temp = _arch;
+		idxtype len_temp = _len;
+
 		try{
-			if(_len == 0){ //graph vuoto
+			init_vars(len_temp+1); //allocazione
+			_node[_len-1] = node; //assegnamento
 
-				init_vars(1); //allocazione
-				_node[0] = node; //assegnamento
-
-			} else { //graph già inizializzato
-
-				nodetype* node_temp = _node;
-				bool** arch_temp = _arch;
-				idxtype len_temp = _len;
-
-				init_vars(len_temp+1); //allocazione
-				_node[_len-1] = node; //assegnamento
-
-				//copio i vecchi dati sul nuovo grafo
-				for(idxtype c = 0; c < len_temp; c++){
-					_node[c] = node_temp[c];
-					for(idxtype d = 0; d < len_temp; d++){
-						_arch[c][d] = arch_temp[c][d];
-					}
+			//copio i vecchi dati sul nuovo grafo
+			for(idxtype c = 0; c < len_temp; c++){
+				_node[c] = node_temp[c];
+				for(idxtype d = 0; d < len_temp; d++){
+					_arch[c][d] = arch_temp[c][d];
 				}
-
-				//distruggo i vecchi dati
-				destr_vars(node_temp,arch_temp,len_temp);
 			}
+
+			//distruggo i vecchi dati
+			destr_vars(node_temp,arch_temp,len_temp);
+
 		} catch(...) {
+			
 			// errore allocazione o assegnamento
+			//distruggo nuovi dati
 			destr_vars(_node, _arch, _len);
-			_node = nullptr;
-			_arch = nullptr;
-			_len = 0;
+
+			//ripristino vecchi dati
+			_node = node_temp;
+			_arch = arch_temp;
+			_len = len_temp;
+
 			throw;
 		}
 
@@ -411,7 +415,7 @@ public:
 		@throws graphexception grafo vuoto
 		@throws graphexception nodo non presente
 	*/
-	void remove(nodetype node)
+	void remove(const nodetype &node)
 	{
 		if(_len == 0) //grafo vuoto
 			throw graphexception("grafo vuoto!");
@@ -453,12 +457,18 @@ public:
 
 			//distruggo i vecchi dati
 			destr_vars(node_temp,arch_temp,len_temp);
+
 		} catch(...) {
+
 			// errore allocazione o assegnamento
+			//distruggo nuovi dati
 			destr_vars(_node, _arch, _len);
-			_node = nullptr;
-			_arch = nullptr;
-			_len = 0;
+
+			//ripristino vecchi dati
+			_node = node_temp;
+			_arch = arch_temp;
+			_len = len_temp;
+
 			throw;
 		}
 
@@ -537,7 +547,7 @@ public:
 		composizione del grafo su std::out,
 		mostrando i nodi e gli archi attivi
 	*/
-	void print()
+	void print() const
 	{
 		std::cout << *this << std::endl;
 	}
