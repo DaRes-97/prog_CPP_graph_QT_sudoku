@@ -16,10 +16,13 @@ Sudoku::Sudoku(QWidget *parent)
 {
     ui->setupUi(this);
 
-    //inibisco input lettere e simboli ed escludo lo zero
     foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
+        //inibisco input lettere e simboli ed escludo lo zero
         le->setValidator(new QRegularExpressionValidator(QRegularExpression("[1-9]"),this));
         le->setMaxLength(1);
+
+        //disattivo tasto SOLVE con sudoku vuoto
+        connect(le, SIGNAL(textChanged(const QString)), this, SLOT(on_text_changed()));
     }
 
     on_resetButton_clicked();
@@ -31,6 +34,18 @@ Sudoku::~Sudoku()
     next_state.clear();
     initial_state.clear();
     delete ui;
+}
+
+//disattiva tasto SOLVE con sudoku vuoto
+void Sudoku::on_text_changed(){
+    foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
+        if(!le->text().isEmpty()){
+            ui->solveButton->setEnabled(true);
+            return;
+        }
+    }
+
+    ui->solveButton->setEnabled(false);
 }
 
 void Sudoku::on_solveButton_clicked()
@@ -94,6 +109,7 @@ void Sudoku::on_resetButton_clicked()
     ui->solveButton->setEnabled(true);
     ui->prevButton->setEnabled(false);
     ui->nextButton->setEnabled(false);
+    ui->solveButton->setEnabled(false);
 }
 
 //torna indietro di un passo nella risoluzione

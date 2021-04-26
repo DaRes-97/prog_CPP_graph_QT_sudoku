@@ -31,6 +31,8 @@ private slots:
 
     void on_nextButton_clicked();
 
+    void on_text_changed();
+
 private:
     Ui::Sudoku *ui;
 
